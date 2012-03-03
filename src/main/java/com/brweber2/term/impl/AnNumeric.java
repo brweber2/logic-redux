@@ -3,8 +3,10 @@ package com.brweber2.term.impl;
 import com.brweber2.term.Numeric;
 import com.brweber2.term.Term;
 import com.brweber2.term.Variable;
+import com.brweber2.unify.Binding;
 import com.brweber2.unify.UnificationResult;
 import com.brweber2.unify.UnifyResult;
+import com.brweber2.unify.impl.Bindings;
 
 /**
  * @author brweber2
@@ -23,14 +25,19 @@ public class AnNumeric implements Numeric {
 
     @Override
     public UnifyResult unify(Term other) {
-        UnificationResult result = new com.brweber2.unify.impl.UnifyResult();
+        return unify(other, new Bindings());
+    }
+
+    @Override
+    public UnifyResult unify(Term other, Binding binding) {
+        UnificationResult result = new com.brweber2.unify.impl.UnifyResult(binding);
         if ( other instanceof Numeric)
         {
             result.set(this.equals(other),this,(Numeric)other);
         }
         else if ( other instanceof Variable)
         {
-            result.instantiate((Variable)other,this);
+            result.instantiate((Variable) other, this);
         }
         else
         {

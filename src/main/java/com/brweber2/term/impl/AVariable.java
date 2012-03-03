@@ -2,8 +2,10 @@ package com.brweber2.term.impl;
 
 import com.brweber2.term.Term;
 import com.brweber2.term.Variable;
+import com.brweber2.unify.Binding;
 import com.brweber2.unify.UnificationResult;
 import com.brweber2.unify.UnifyResult;
+import com.brweber2.unify.impl.Bindings;
 
 /**
  * @author brweber2
@@ -22,14 +24,19 @@ public class AVariable implements Variable {
 
     @Override
     public UnifyResult unify(Term other) {
-        UnificationResult result = new com.brweber2.unify.impl.UnifyResult();
+        return unify(other, new Bindings());
+    }
+
+    @Override
+    public UnifyResult unify(Term other, Binding binding) {
+        UnificationResult result = new com.brweber2.unify.impl.UnifyResult(binding);
         if ( other instanceof Variable )
         {
             result.shareValues(this, (Variable) other);
         }
         else
         {
-            result.instantiate(this,other);
+            result.instantiate(this, other);
         }
         return result;
     }

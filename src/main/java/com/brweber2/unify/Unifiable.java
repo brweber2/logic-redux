@@ -8,4 +8,5 @@ import com.brweber2.term.Term;
  */
 public interface Unifiable {
     UnifyResult unify( Term other );
+    UnifyResult unify( Term other, Binding binding );
 }

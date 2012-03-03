@@ -17,10 +17,18 @@ import java.util.Set;
 public class UnifyResult implements UnificationResult {
     
     private boolean successful = false;
-    private Binding bindings = new Bindings();
+    private Binding bindings;
     private Term left;
     private Term right;
-    
+
+    public UnifyResult() {
+        this.bindings = new Bindings();
+    }
+
+    public UnifyResult(Binding bindings) {
+        this.bindings = bindings;
+    }
+
     @Override
     public void set(boolean succeeded, Atom a, Atom b) {
         this.successful = succeeded;
