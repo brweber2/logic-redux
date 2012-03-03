@@ -4,11 +4,11 @@ import com.brweber2.term.Atom;
 import com.brweber2.term.ComplexTerm;
 import com.brweber2.term.Numeric;
 import com.brweber2.term.Term;
+import com.brweber2.term.Variable;
 import com.brweber2.unify.Binding;
 import com.brweber2.unify.UnificationResult;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 /**
  * @author brweber2
@@ -65,5 +65,69 @@ public class UnifyResult implements UnificationResult {
 
     public Term getRight() {
         return right;
+    }
+
+    @Override
+    public boolean isBound(Variable a) {
+        return bindings.isBound(a);
+    }
+
+    @Override
+    public Set<Variable> getVariables() {
+        return bindings.getVariables();
+    }
+
+    @Override
+    public void shareValues(Variable a, Variable b) {
+        if ( isBound(a) && isBound(b) )
+        {
+            this.successful = bindings.resolve(a).equals(bindings.resolve(b));
+        }
+        else if ( isBound(a) )
+        {
+            bindings.shareBoundValues(a,b);
+            this.successful = true;
+        }
+        else if ( isBound(b) )
+        {
+            bindings.shareBoundValues(b,a);
+            this.successful = true;
+        }
+        else
+        {
+            bindings.shareValues(a,b);
+            this.successful = true;
+        }
+    }
+
+    @Override
+    public void instantiate(Variable a, Term b) {
+        if ( isBound(a) )
+        {
+            if ( bindings.resolve(a).equals(b) )
+            {
+                this.successful = true;
+                bindings.instantiate(a,b);
+            }
+            else
+            {
+                this.successful =false;
+            }
+        }
+        else
+        {
+            bindings.instantiate(a,b);
+            this.successful = true;
+        }
+    }
+
+    @Override
+    public Term resolve(Variable a) {
+        return bindings.resolve(a);
+    }
+
+    @Override
+    public void shareBoundValues(Variable a, Variable b) {
+        bindings.shareBoundValues(a, b);
     }
 }

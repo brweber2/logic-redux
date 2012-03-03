@@ -7,6 +7,13 @@
     <groupId>logic-redux</groupId>
     <artifactId>logic-redux</artifactId>
     <version>1.0</version>
+    <dependencies>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>6.2.1</version>
+        </dependency>
+    </dependencies>
 
-    
+
 </project>

@@ -6,7 +6,6 @@ import com.brweber2.term.Term;
  * @author brweber2
  *         Copyright: 2012
  */
-public interface Unifier {
-
-    UnifyResult unify( Term a, Term b );
+public interface Unifiable {
+    UnifyResult unify( Term other );
 }

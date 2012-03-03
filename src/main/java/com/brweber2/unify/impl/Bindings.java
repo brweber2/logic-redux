@@ -6,6 +6,7 @@ import com.brweber2.unify.Binding;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -22,6 +23,11 @@ public class Bindings implements Binding {
         return lookups.containsKey(a) && values.containsKey(lookups.get(a));
     }
 
+    public Set<Variable> getVariables()
+    {
+        return lookups.keySet();
+    }
+
     public void shareValues(Variable a, Variable b) {
         String uuid = UUID.randomUUID().toString();
         lookups.put(a,uuid);
@@ -32,5 +38,20 @@ public class Bindings implements Binding {
         String uuid = UUID.randomUUID().toString();
         lookups.put(a,uuid);
         values.put(uuid,b);
+    }
+    
+    public Term resolve(Variable a)
+    {
+        if ( isBound(a) )
+        {
+            return values.get(lookups.get(a));
+        }
+        return null;
+    }
+
+    @Override
+    public void shareBoundValues(Variable a, Variable b) {
+        String uuid = lookups.get(a);
+        lookups.put(b,uuid);
     }
 }

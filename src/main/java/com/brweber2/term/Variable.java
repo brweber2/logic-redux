@@ -5,5 +5,4 @@ package com.brweber2.term;
  *         Copyright: 2012
  */
 public interface Variable extends SimpleTerm {
-    boolean isBound();
 }

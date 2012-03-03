@@ -2,6 +2,9 @@ package com.brweber2.term.impl;
 
 import com.brweber2.term.ComplexTerm;
 import com.brweber2.term.Term;
+import com.brweber2.term.Variable;
+import com.brweber2.unify.UnificationResult;
+import com.brweber2.unify.UnifyResult;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,5 +37,43 @@ public class AComplexTerm implements ComplexTerm {
 
     public List<Term> getTerms() {
         return terms;
+    }
+
+    @Override
+    public UnifyResult unify(Term other) {
+        UnificationResult result = new com.brweber2.unify.impl.UnifyResult();
+        if ( other instanceof ComplexTerm )
+        {
+            result.set(this.equals(other),this,(ComplexTerm)other);
+        }
+        else if ( other instanceof Variable )
+        {
+            result.instantiate((Variable)other,this);
+        }
+        else
+        {
+            result.fail(this,other);
+        }
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AComplexTerm that = (AComplexTerm) o;
+
+        if (!functor.equals(that.functor)) return false;
+        if (!terms.equals(that.terms)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = functor.hashCode();
+        result = 31 * result + terms.hashCode();
+        return result;
     }
 }

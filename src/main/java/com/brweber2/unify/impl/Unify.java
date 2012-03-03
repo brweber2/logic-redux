@@ -17,8 +17,8 @@ import java.util.List;
 public class Unify implements Unifier {
 
     @Override
-    public UnificationResult unify(Term a, Term b) {
-        UnificationResult result = new UnifyResult();
+    public UnifyResult unify(Term a, Term b) {
+        UnifyResult result = new UnifyResult();
         unify( result, a, b );
         return result;
     }
@@ -35,15 +35,15 @@ public class Unify implements Unifier {
         }
         else if ( a instanceof Variable && b instanceof Variable )
         {
-            unificationResult.bindings().shareValues((Variable)a,(Variable)b);
+            unificationResult.shareValues((Variable)a,(Variable)b);
         }
         else if ( a instanceof Variable )
         {
-            unificationResult.bindings().instantiate((Variable)a,b);
+            unificationResult.instantiate((Variable)a,b);
         }
         else if ( b instanceof Variable )
         {
-            unificationResult.bindings().instantiate((Variable)b,a);
+            unificationResult.instantiate((Variable)b,a);
         }
         else if ( a instanceof ComplexTerm && b instanceof ComplexTerm )
         {
