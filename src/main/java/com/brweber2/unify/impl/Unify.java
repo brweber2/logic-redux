@@ -11,6 +11,7 @@ import com.brweber2.unify.Unifier;
 import java.util.List;
 
 /**
+ * @deprecated
  * @author brweber2
  *         Copyright: 2012
  */

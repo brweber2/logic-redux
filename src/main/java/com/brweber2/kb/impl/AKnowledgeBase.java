@@ -6,12 +6,12 @@ import com.brweber2.kb.KnowledgeBase;
 import com.brweber2.kb.Query;
 import com.brweber2.kb.QueryResult;
 import com.brweber2.kb.Rule;
+import com.brweber2.proofsearch.ProofSearch;
 import com.brweber2.rule.Conjunction;
 import com.brweber2.rule.Disjunction;
 import com.brweber2.rule.Goal;
 import com.brweber2.unify.Binding;
 import com.brweber2.unify.UnifyResult;
-import com.brweber2.unify.impl.Bindings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
  * @author brweber2
  *         Copyright: 2012
  */
-public class AKnowledgeBase implements KnowledgeBase {
+public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
     
     List<Knowledge> clauses = new ArrayList<Knowledge>();
     
@@ -28,20 +28,16 @@ public class AKnowledgeBase implements KnowledgeBase {
     {
         clauses.add(knowledge);
     }
-
+    
     public QueryResult pose( Query query )
     {
-        return pose( query, new Bindings() );
-    }
-    
-    public QueryResult pose( Query query, Binding binding )
-    {
         QueryResult queryResult = new AQueryResult();
-        for (Knowledge clause : clauses) {
+        for (Knowledge clause : clauses) 
+        {
             if ( clause instanceof Fact )
             {
                 Fact fact = (Fact) clause;
-                UnifyResult unifyResult = query.getTerm().unify( fact.getTerm(), binding );
+                UnifyResult unifyResult = query.getTerm().unify( fact.getTerm() );
                 if ( unifyResult.succeeded() )
                 {
                     queryResult.add( fact, unifyResult );
@@ -53,11 +49,7 @@ public class AKnowledgeBase implements KnowledgeBase {
                 UnifyResult unifyResult = query.getTerm().unify( rule.getHead().getTerm() );
                 if ( unifyResult.succeeded() )
                 {
-                    Binding headBinding = unifyResult.bindings();
-                    if ( satisfy(rule.getBody().getGoals(), headBinding, queryResult) )
-                    {
-                        queryResult.add( rule, unifyResult );
-                    }
+                    queryResult.add( rule, satisfy(rule.getBody().getGoals(), unifyResult.bindings()) );
                 }
             }
             else
@@ -68,34 +60,62 @@ public class AKnowledgeBase implements KnowledgeBase {
         return queryResult;
     }
     
-    private boolean satisfy( List<Goal> goals, Binding binding, QueryResult queryResult )
+    private QueryResult satisfy( List<Goal> goals, Binding binding )
     {
-        for (Goal goal : goals) {
-            if ( !satisfy( goal,  binding, queryResult ) )
+        QueryResult goalResult =  satisfy( goals.get(0), binding );
+        if ( !goalResult.successful() )
+        {
+            return null;
+        }
+        for (UnifyResult unifyResult : goalResult.getUnifyResults()) {
+            if ( more(goals) )
             {
-                return false;
+                satisfy(getRestOf(goals), unifyResult.bindings() );
+            }
+            else
+            {
+                goalResult.add(binding);
             }
         }
-        return true;
+        return goalResult;
     }
-    
-    private boolean satisfy( Goal goal, Binding binding, QueryResult queryResult )
+
+    private boolean more(List<Goal> goals) {
+        return goals != null && goals.size() > 1;
+    }
+
+    private List<Goal> getRestOf(List<Goal> goals) {
+        if ( goals == null || goals.isEmpty() )
+        {
+            return new ArrayList<Goal>();
+        }
+        return goals.subList(1,goals.size());
+    }
+
+    private QueryResult satisfy( Goal goal, Binding binding )
     {
         if ( goal instanceof Conjunction )
         {
             Conjunction conjunction = (Conjunction) goal;
-            return satisfy(conjunction.getLeft(),binding,queryResult) && satisfy(conjunction.getRight(),binding,queryResult);
+            List<Goal> conjunctionGoals = new ArrayList<Goal>();
+            conjunctionGoals.add( conjunction.getLeft() );
+            conjunctionGoals.add( conjunction.getRight() );
+            return satisfy(conjunctionGoals,binding);
         }
         else if ( goal instanceof Disjunction )
         {
             Disjunction disjunction = (Disjunction) goal;
-            return satisfy(disjunction.getLeft(),binding,queryResult) || satisfy(disjunction.getRight(),binding,queryResult);
+            return satisfy(disjunction.getLeft(),binding).add(satisfy(disjunction.getRight(),binding));
         }
         else
         {
-            QueryResult goalResult = pose( goal.asQuery(), binding.newBinding() );
-
+            return pose(getQueryFor(goal));
         }
-        
     }
+
+    private Query getQueryFor(Goal goal) {
+        return goal.getQuery();
+    }
+
+
 }

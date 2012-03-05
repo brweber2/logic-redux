@@ -5,4 +5,5 @@ package com.brweber2.kb;
  *         Copyright: 2012
  */
 public interface KnowledgeBase {
+    void assertKnowledge( Knowledge knowledge );
 }
