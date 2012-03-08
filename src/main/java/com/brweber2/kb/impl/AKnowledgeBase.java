@@ -10,6 +10,7 @@ import com.brweber2.proofsearch.ProofSearch;
 import com.brweber2.rule.Conjunction;
 import com.brweber2.rule.Disjunction;
 import com.brweber2.rule.Goal;
+import com.brweber2.term.Term;
 import com.brweber2.unify.Binding;
 import com.brweber2.unify.UnifyResult;
 
@@ -46,10 +47,14 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
             else if ( clause instanceof Rule )
             {
                 Rule rule = (Rule) clause;
-                UnifyResult unifyResult = query.getTerm().unify( rule.getHead().getTerm() );
+                RewrittenItems rewrittenItems = rewrite( query, rule );
+                Term rewrittenQuery = rewrittenItems.getQuery();
+                Term rewrittenRuleHead = rewrittenItems.getRuleHead();
+                List<Goal> rewrittenGoals = rewrittenItems.getGoals();
+                UnifyResult unifyResult = rewrittenQuery.unify( rewrittenRuleHead );
                 if ( unifyResult.succeeded() )
                 {
-                    queryResult.add( rule, satisfy(rule.getBody().getGoals(), unifyResult.bindings()) );
+                    queryResult.add( rule, satisfy(rewrittenGoals, unifyResult.bindings()) );
                 }
             }
             else
@@ -109,12 +114,12 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         }
         else
         {
-            return pose(getQueryFor(goal));
+            return pose(getQueryFor(goal,binding));
         }
     }
 
-    private Query getQueryFor(Goal goal) {
-        return goal.getQuery();
+    private Query getQueryFor(Goal goal,Binding binding) {
+        return goal.getQuery(binding);
     }
 
 

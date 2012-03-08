@@ -7,5 +7,5 @@ import com.brweber2.term.Term;
  *         Copyright: 2012
  */
 public interface Fact extends Knowledge {
-    Term getTerm();
+    Term getTerm(); // either a constant (no variables!) or a complex term containing no variables
 }
