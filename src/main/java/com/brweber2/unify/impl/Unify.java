@@ -5,6 +5,7 @@ import com.brweber2.term.ComplexTerm;
 import com.brweber2.term.Numeric;
 import com.brweber2.term.Term;
 import com.brweber2.term.Variable;
+import com.brweber2.unify.Binding;
 import com.brweber2.unify.UnificationResult;
 import com.brweber2.unify.Unifier;
 
@@ -19,6 +20,12 @@ public class Unify implements Unifier {
 
     public UnifyResult unify(Term a, Term b) {
         UnifyResult result = new UnifyResult();
+        unify( result, a, b );
+        return result;
+    }
+
+    public UnifyResult unify(Term a, Term b, Binding binding ) {
+        UnifyResult result = new UnifyResult(binding);
         unify( result, a, b );
         return result;
     }

@@ -8,8 +8,10 @@ import com.brweber2.proofsearch.ProofSearch;
 import com.brweber2.rule.Goal;
 import com.brweber2.term.Term;
 import com.brweber2.unify.Binding;
+import com.brweber2.unify.Unifier;
 import com.brweber2.unify.UnifyResult;
 import com.brweber2.unify.impl.Bindings;
+import com.brweber2.unify.impl.Unify;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,6 +28,7 @@ import java.util.List;
 public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
     
     List<Knowledge> clauses = new ArrayList<Knowledge>();
+    Unifier unifier = new Unify();
     
     public void assertKnowledge( Knowledge knowledge )
     {
@@ -65,7 +68,9 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                 if ( clause instanceof Fact )
                 {
                     Fact fact = (Fact) clause;
-                    UnifyResult unifyResult = goal.unify( (Term) fact, originalBinding );
+                    System.out.println("checking fact " + fact);
+                    UnifyResult unifyResult = unifier.unify( goal, (Term) fact, originalBinding );
+//                    UnifyResult unifyResult = goal.unify( (Term) fact, originalBinding );
                     if ( unifyResult.succeeded() )
                     {
                         print( unifyResult );
@@ -74,8 +79,10 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                 else if ( clause instanceof Rule )
                 {
                     Rule rule = (Rule) clause;
+                    System.out.println("checking rule " + rule);
                     RewrittenItems rewrittenItems = new RewrittenItems( goal, rule );
-                    UnifyResult unifyResult = rewrittenItems.getGoal().unify( rewrittenItems.getRuleHead().getTerm(), originalBinding );
+                    UnifyResult unifyResult = unifier.unify( rewrittenItems.getGoal(), (Term) rewrittenItems.getRuleHead(), originalBinding );
+//                    UnifyResult unifyResult = rewrittenItems.getGoal().unify( rewrittenItems.getRuleHead().getTerm(), originalBinding );
                     if ( unifyResult.succeeded() )
                     {
                         for ( Deque<Goal> newGoals : rewrittenItems.getSetsOfNewGoals() )
