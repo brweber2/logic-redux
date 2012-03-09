@@ -1,6 +1,7 @@
 package com.brweber2.kb.impl;
 
 import com.brweber2.kb.Fact;
+import com.brweber2.kb.Functor;
 import com.brweber2.kb.Knowledge;
 import com.brweber2.kb.KnowledgeBase;
 import com.brweber2.kb.Rule;
@@ -16,8 +17,10 @@ import com.brweber2.unify.impl.WrappedBinding;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Deque;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author brweber2
@@ -25,12 +28,18 @@ import java.util.List;
  */
 public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
     
-    List<Knowledge> clauses = new ArrayList<Knowledge>();
+    Map<Functor,Collection<Knowledge>> clauses = new HashMap<Functor,Collection<Knowledge>>();
+//    List<Knowledge> clauses = new ArrayList<Knowledge>();
     Unifier unifier = new Unify();
     
     public void assertKnowledge( Knowledge knowledge )
     {
-        clauses.add(knowledge);
+        Functor functor = knowledge.getFunctor();
+        if ( !clauses.containsKey( functor ) )
+        {
+            clauses.put( functor, new ArrayList<Knowledge>() );
+        }
+        clauses.get( functor ).add( knowledge );
     }
     
     public void pose( Goal query )
@@ -48,9 +57,9 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         }
     }
 
-    private List<Knowledge> getClauses( Goal goal )
+    private Collection<Knowledge> getClauses( Goal goal )
     {
-        return clauses; // todo optimize for performance reasons later...
+        return clauses.get( goal.getFunctor() );
     }
 
     public void satisfy( Deque<Goal> goals )

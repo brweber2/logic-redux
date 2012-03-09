@@ -1,5 +1,7 @@
 package com.brweber2.term.impl;
 
+import com.brweber2.kb.Functor;
+import com.brweber2.kb.impl.AFunctor;
 import com.brweber2.term.Numeric;
 import com.brweber2.term.Term;
 import com.brweber2.term.Variable;
@@ -70,5 +72,10 @@ public class AnNumeric implements Numeric {
     public String toString()
     {
         return number;
+    }
+
+    public Functor getFunctor()
+    {
+        return new AFunctor( number, 0 );
     }
 }

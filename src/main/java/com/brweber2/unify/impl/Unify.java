@@ -64,12 +64,9 @@ public class Unify implements Unifier {
 
     private boolean unify( UnificationResult unificationResult, ComplexTerm a, ComplexTerm b )
     {
-        if ( a.getFunctor().equals(b.getFunctor()) )
+        if ( a.getFunctor().equals(b.getFunctor()) )  // this checks arity as well
         {
-            if ( a.getArity() == b.getArity() )
-            {
-                return argsUnify(unificationResult, a, b);
-            }
+            return argsUnify(unificationResult, a, b);
         }
         return false;
     }

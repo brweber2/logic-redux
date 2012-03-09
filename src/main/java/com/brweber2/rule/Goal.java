@@ -1,9 +1,7 @@
 package com.brweber2.rule;
 
+import com.brweber2.kb.Functor;
 import com.brweber2.term.Term;
-import com.brweber2.term.Variable;
-
-import java.util.List;
 
 /**
  * @author brweber2
@@ -11,4 +9,5 @@ import java.util.List;
  */
 public interface Goal extends RuleBody, Term
 {
+    Functor getFunctor();
 }

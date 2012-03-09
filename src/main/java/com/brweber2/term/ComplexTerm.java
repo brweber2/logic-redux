@@ -11,7 +11,6 @@ import java.util.List;
  */
 public interface ComplexTerm extends Term, Fact, Goal
 {
-    String getFunctor();
     int getArity();
     List<Term> getTerms();
 }

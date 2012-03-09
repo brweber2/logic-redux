@@ -5,6 +5,7 @@
 package com.brweber2.rule.impl;
 
 import com.brweber2.kb.Fact;
+import com.brweber2.kb.Functor;
 import com.brweber2.kb.Rule;
 import com.brweber2.rule.RuleBody;
 
@@ -33,5 +34,10 @@ public class ARule implements Rule
     public String toString()
     {
         return head + " :- " + goal + ".";
+    }
+
+    public Functor getFunctor()
+    {
+        return head.getFunctor();
     }
 }
