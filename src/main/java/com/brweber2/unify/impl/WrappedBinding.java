@@ -58,4 +58,10 @@ public class WrappedBinding implements Binding
     {
         binding.dumpVariables();
     }
+    
+    @Override
+    public String toString()
+    {
+        return binding.toString();
+    }
 }

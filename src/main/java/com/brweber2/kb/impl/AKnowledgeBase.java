@@ -67,7 +67,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                 if ( clause instanceof Fact )
                 {
                     Fact fact = (Fact) clause;
-                    System.out.println("checking fact " + fact);
+                    System.out.println("goal " + goal + " checking fact " + fact + " with " + originalBinding);
                     UnifyResult unifyResult = unifier.unify( goal, (Term) fact, new WrappedBinding(originalBinding) );
 //                    UnifyResult unifyResult = goal.unify( (Term) fact, originalBinding );
                     if ( unifyResult.succeeded() )
@@ -78,14 +78,16 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                 else if ( clause instanceof Rule )
                 {
                     Rule rule = (Rule) clause;
-                    System.out.println("checking rule " + rule);
+                    System.out.println("goal " + goal + " checking rule " + rule + " with " + originalBinding);
                     RewrittenItems rewrittenItems = new RewrittenItems( goal, rule, originalBinding );
                     UnifyResult unifyResult = rewrittenItems.getUnifyResult();
 //                    UnifyResult unifyResult = rewrittenItems.getGoal().unify( rewrittenItems.getRuleHead().getTerm(), originalBinding );
                     if ( unifyResult.succeeded() )
                     {
+                        System.out.println("rule match so far, checking rest of goals");
                         for ( Deque<Goal> newGoals : rewrittenItems.getSetsOfNewGoals() )
                         {
+                            System.out.println("trying to satisfy " + newGoals + " with " + unifyResult.bindings() );
                             satisfy( newGoals, unifyResult.bindings() );
                         }
                     }

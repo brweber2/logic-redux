@@ -14,7 +14,8 @@ import java.util.UUID;
  *         Copyright: 2012
  */
 public class Bindings implements Binding {
-    
+
+    private Map<String,Variable> reverseLookups = new HashMap<String, Variable>();
     private Map<Variable,String> lookups = new HashMap<Variable,String>();
     private Map<String,Term> values = new HashMap<String,Term>();
     
@@ -30,7 +31,7 @@ public class Bindings implements Binding {
 
     public void shareValues(Variable a, Variable b) {
         String uuid = UUID.randomUUID().toString();
-        lookups.put(a,uuid);
+        reverseLookups.put(uuid,a);
         lookups.put(b,uuid);
     }
 
@@ -66,7 +67,25 @@ public class Bindings implements Binding {
     {
         for ( Variable variable : lookups.keySet() )
         {
-            System.out.println(variable + ": " + values.get( lookups.get( variable ) ) );
+            String uuid = lookups.get( variable );
+            // the value always comes from the current scope
+            Term value = values.get( lookups.get( variable ) );
+            // but the variable name might come from elsewhere....
+            if ( reverseLookups.containsKey( uuid ) )
+            {
+                variable = reverseLookups.get( uuid );
+            }
+            System.out.println( variable + ": " + value );
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Bindings{" +
+                "reverseLookups=" + reverseLookups +
+                ", lookups=" + lookups +
+                ", values=" + values +
+                '}';
     }
 }

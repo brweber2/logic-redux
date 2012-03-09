@@ -10,8 +10,8 @@ import com.brweber2.term.Term;
 import com.brweber2.unify.Binding;
 import com.brweber2.unify.Unifier;
 import com.brweber2.unify.UnifyResult;
+import com.brweber2.unify.impl.RuleBinding;
 import com.brweber2.unify.impl.Unify;
-import com.brweber2.unify.impl.WrappedBinding;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

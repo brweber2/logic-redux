@@ -27,4 +27,10 @@ public class ADisconjunction implements Disjunction
     {
         return right;
     }
+
+    @Override
+    public String toString()
+    {
+        return left + "; " + right;
+    }
 }

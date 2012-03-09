@@ -11,5 +11,4 @@ import java.util.List;
  */
 public interface Goal extends RuleBody, Term
 {
-    List<Variable> getVariables();
 }

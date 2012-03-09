@@ -6,7 +6,6 @@ package com.brweber2.rule.impl;
 
 import com.brweber2.kb.Fact;
 import com.brweber2.kb.Rule;
-import com.brweber2.rule.Goal;
 import com.brweber2.rule.RuleBody;
 
 public class ARule implements Rule
@@ -28,5 +27,11 @@ public class ARule implements Rule
     public RuleBody getBody()
     {
         return goal;
+    }
+
+    @Override
+    public String toString()
+    {
+        return head + " :- " + goal + ".";
     }
 }

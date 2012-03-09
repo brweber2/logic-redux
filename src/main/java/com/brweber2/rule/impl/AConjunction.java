@@ -28,4 +28,9 @@ public class AConjunction implements Conjunction
         return right;
     }
 
+    @Override
+    public String toString()
+    {
+        return left + ", " + right;
+    }
 }
