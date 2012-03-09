@@ -1,11 +1,15 @@
 package com.brweber2.kb.impl;
 
-import com.brweber2.kb.Query;
 import com.brweber2.kb.Rule;
+import com.brweber2.rule.Conjunction;
+import com.brweber2.rule.Disjunction;
 import com.brweber2.rule.Goal;
 import com.brweber2.term.Term;
 
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
 
 /**
  * @author brweber2
@@ -13,25 +17,45 @@ import java.util.List;
  */
 public class RewrittenItems {
     
-    private Term query;
+    private Goal goal;
     private Term ruleHead;
-    private List<Goal> goals;
+    private Collection<Deque<Goal>> goals = new ArrayList<Deque<Goal>>();
     
-    public RewrittenItems( Query query, Rule rule )
+    public RewrittenItems( Goal goal, Rule rule )
     {
-        query.getTerm();
-        rule.getHead().getTerm();
+        // todo re-write variables in these two...
+        this.goal = goal;
+        this.ruleHead = rule.getHead().getTerm();
+
+        Deque<Goal> currentGoals = new ArrayDeque<Goal>();
+        for ( Goal newGoal : rule.getBody().getGoals() )
+        {
+            if ( newGoal instanceof Conjunction )
+            {
+                Conjunction conjunction = (Conjunction) newGoal;
+            }
+            else if ( newGoal instanceof Disjunction )
+            {
+                Disjunction conjunction = (Disjunction) newGoal;
+                goals.add( conjunction.getLeft() );
+            }
+            else
+            {
+
+            }
+        }
+        
     }
 
-    public Term getQuery() {
-        return query;
+    public Goal getGoal() {
+        return goal;
     }
 
     public Term getRuleHead() {
         return ruleHead;
     }
 
-    public List<Goal> getGoals() {
+    public Collection<Deque<Goal>> getSetsOfNewGoals() {
         return goals;
     }
 }

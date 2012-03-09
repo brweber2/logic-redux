@@ -17,4 +17,6 @@ public interface Binding {
     void instantiate(Variable a, Term b);
     Term resolve(Variable a);
     void shareBoundValues(Variable a, Variable b);
+
+    void dumpVariables();
 }

@@ -4,17 +4,19 @@ import com.brweber2.kb.Fact;
 import com.brweber2.kb.Knowledge;
 import com.brweber2.kb.KnowledgeBase;
 import com.brweber2.kb.Query;
-import com.brweber2.kb.QueryResult;
 import com.brweber2.kb.Rule;
 import com.brweber2.proofsearch.ProofSearch;
-import com.brweber2.rule.Conjunction;
-import com.brweber2.rule.Disjunction;
 import com.brweber2.rule.Goal;
-import com.brweber2.term.Term;
 import com.brweber2.unify.Binding;
 import com.brweber2.unify.UnifyResult;
+import com.brweber2.unify.impl.Bindings;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 /**
@@ -30,97 +32,83 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         clauses.add(knowledge);
     }
     
-    public QueryResult pose( Query query )
+    public void pose( Query query )
     {
-        QueryResult queryResult = new AQueryResult();
-        for (Knowledge clause : clauses) 
+        try
         {
-            if ( clause instanceof Fact )
+            Deque<Goal> goals = new ArrayDeque<Goal>();
+            goals.push( query );
+            satisfy( goals );
+        }
+        catch ( ShortCircuitException e )
+        {
+            // just fine....
+        }
+    }
+
+    private List<Knowledge> getClauses( Goal goal )
+    {
+        return clauses; // todo optimize for performance reasons later...
+    }
+
+    public void satisfy( Deque<Goal> goals )
+    {
+        satisfy( goals, new Bindings() );
+    }
+
+    public void satisfy( Deque<Goal> goals, Binding originalBinding )
+    {
+        for ( final Goal goal : goals )
+        {
+            for ( Knowledge clause : getClauses(goal) )
             {
-                Fact fact = (Fact) clause;
-                UnifyResult unifyResult = query.getTerm().unify( fact.getTerm() );
-                if ( unifyResult.succeeded() )
+                if ( clause instanceof Fact )
                 {
-                    queryResult.add( fact, unifyResult );
+                    Fact fact = (Fact) clause;
+                    UnifyResult unifyResult = goal.unify( fact.getTerm(), originalBinding );
+                    if ( unifyResult.succeeded() )
+                    {
+                        print( unifyResult );
+                    }
                 }
-            }
-            else if ( clause instanceof Rule )
-            {
-                Rule rule = (Rule) clause;
-                RewrittenItems rewrittenItems = rewrite( query, rule );
-                Term rewrittenQuery = rewrittenItems.getQuery();
-                Term rewrittenRuleHead = rewrittenItems.getRuleHead();
-                List<Goal> rewrittenGoals = rewrittenItems.getGoals();
-                UnifyResult unifyResult = rewrittenQuery.unify( rewrittenRuleHead );
-                if ( unifyResult.succeeded() )
+                else if ( clause instanceof Rule )
                 {
-                    queryResult.add( rule, satisfy(rewrittenGoals, unifyResult.bindings()) );
+                    Rule rule = (Rule) clause;
+                    RewrittenItems rewrittenItems = new RewrittenItems( goal, rule );
+                    UnifyResult unifyResult = rewrittenItems.getGoal().unify( rewrittenItems.getRuleHead(), originalBinding );
+                    if ( unifyResult.succeeded() )
+                    {
+                        for ( Deque<Goal> newGoals : rewrittenItems.getSetsOfNewGoals() )
+                        {
+                            satisfy( newGoals, unifyResult.bindings() );
+                        }
+                    }
                 }
-            }
-            else
-            {
-                throw new RuntimeException("Unknown clause type for " + clause);
+                else
+                {
+                    throw new RuntimeException( "Unknown clause type for " + clause );
+                }
             }
         }
-        return queryResult;
     }
     
-    private QueryResult satisfy( List<Goal> goals, Binding binding )
+    public void print( UnifyResult unifyResult )
     {
-        QueryResult goalResult =  satisfy( goals.get(0), binding );
-        if ( !goalResult.successful() )
+        try
         {
-            return null;
-        }
-        for (UnifyResult unifyResult : goalResult.getUnifyResults()) {
-            if ( more(goals) )
+            System.out.println("yes");
+            unifyResult.bindings().dumpVariables();
+            BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
+            String line = br.readLine();
+            if ( !";".equals( line.trim() ) )
             {
-                satisfy(getRestOf(goals), unifyResult.bindings() );
-            }
-            else
-            {
-                goalResult.add(binding);
+                throw new ShortCircuitException();
             }
         }
-        return goalResult;
-    }
-
-    private boolean more(List<Goal> goals) {
-        return goals != null && goals.size() > 1;
-    }
-
-    private List<Goal> getRestOf(List<Goal> goals) {
-        if ( goals == null || goals.isEmpty() )
+        catch ( IOException e )
         {
-            return new ArrayList<Goal>();
-        }
-        return goals.subList(1,goals.size());
-    }
-
-    private QueryResult satisfy( Goal goal, Binding binding )
-    {
-        if ( goal instanceof Conjunction )
-        {
-            Conjunction conjunction = (Conjunction) goal;
-            List<Goal> conjunctionGoals = new ArrayList<Goal>();
-            conjunctionGoals.add( conjunction.getLeft() );
-            conjunctionGoals.add( conjunction.getRight() );
-            return satisfy(conjunctionGoals,binding);
-        }
-        else if ( goal instanceof Disjunction )
-        {
-            Disjunction disjunction = (Disjunction) goal;
-            return satisfy(disjunction.getLeft(),binding).add(satisfy(disjunction.getRight(),binding));
-        }
-        else
-        {
-            return pose(getQueryFor(goal,binding));
+            throw new RuntimeException( "Unable to read input from the user.", e );
         }
     }
-
-    private Query getQueryFor(Goal goal,Binding binding) {
-        return goal.getQuery(binding);
-    }
-
 
 }

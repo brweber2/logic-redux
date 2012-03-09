@@ -54,4 +54,9 @@ public class Bindings implements Binding {
         String uuid = lookups.get(a);
         lookups.put(b,uuid);
     }
+
+    public void dumpVariables()
+    {
+
+    }
 }
