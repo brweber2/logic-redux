@@ -65,4 +65,10 @@ public class AnAtom implements Atom {
     {
         return this;
     }
+
+    @Override
+    public String toString()
+    {
+        return atom;
+    }
 }

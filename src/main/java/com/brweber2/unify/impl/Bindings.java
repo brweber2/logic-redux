@@ -54,8 +54,19 @@ public class Bindings implements Binding {
         lookups.put(b,uuid);
     }
 
+    public Binding getCopy()
+    {
+        Bindings binding = new Bindings();
+        binding.lookups = new HashMap<Variable, String>( this.lookups );
+        binding.values = new HashMap<String, Term>( this.values );
+        return binding;
+    }
+
     public void dumpVariables()
     {
-        System.out.println("dumping variables...");
+        for ( Variable variable : lookups.keySet() )
+        {
+            System.out.println(variable + ": " + values.get( lookups.get( variable ) ) );
+        }
     }
 }

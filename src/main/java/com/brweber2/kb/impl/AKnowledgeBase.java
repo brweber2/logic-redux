@@ -12,10 +12,8 @@ import com.brweber2.unify.Unifier;
 import com.brweber2.unify.UnifyResult;
 import com.brweber2.unify.impl.Bindings;
 import com.brweber2.unify.impl.Unify;
+import com.brweber2.unify.impl.WrappedBinding;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -37,6 +35,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
     
     public void pose( Goal query )
     {
+        System.out.println("asking " + query);
         try
         {
             Deque<Goal> goals = new ArrayDeque<Goal>();
@@ -69,7 +68,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                 {
                     Fact fact = (Fact) clause;
                     System.out.println("checking fact " + fact);
-                    UnifyResult unifyResult = unifier.unify( goal, (Term) fact, originalBinding );
+                    UnifyResult unifyResult = unifier.unify( goal, (Term) fact, new WrappedBinding(originalBinding) );
 //                    UnifyResult unifyResult = goal.unify( (Term) fact, originalBinding );
                     if ( unifyResult.succeeded() )
                     {
@@ -81,7 +80,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                     Rule rule = (Rule) clause;
                     System.out.println("checking rule " + rule);
                     RewrittenItems rewrittenItems = new RewrittenItems( goal, rule );
-                    UnifyResult unifyResult = unifier.unify( rewrittenItems.getGoal(), (Term) rewrittenItems.getRuleHead(), originalBinding );
+                    UnifyResult unifyResult = unifier.unify( rewrittenItems.getGoal(), (Term) rewrittenItems.getRuleHead(), new WrappedBinding(originalBinding) );
 //                    UnifyResult unifyResult = rewrittenItems.getGoal().unify( rewrittenItems.getRuleHead().getTerm(), originalBinding );
                     if ( unifyResult.succeeded() )
                     {
@@ -105,14 +104,17 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         {
             System.out.println("yes");
             unifyResult.bindings().dumpVariables();
-            BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
-            String line = br.readLine();
-            if ( !";".equals( line.trim() ) )
-            {
-                throw new ShortCircuitException();
-            }
+            // todo add this back in...
+//            BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
+//            String line = br.readLine();
+//            if ( !";".equals( line.trim() ) )
+//            {
+//                throw new ShortCircuitException();
+//            }
+//        }
+//        catch ( IOException e )
         }
-        catch ( IOException e )
+        catch ( Exception e )
         {
             throw new RuntimeException( "Unable to read input from the user.", e );
         }

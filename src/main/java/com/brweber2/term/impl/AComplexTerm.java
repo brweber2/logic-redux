@@ -86,4 +86,22 @@ public class AComplexTerm implements ComplexTerm {
     {
         return this;
     }
+
+    @Override
+    public String toString()
+    {
+        return functor + "(" + termsToString( terms ) + ")";
+    }
+    
+    private String termsToString( List<Term> terms )
+    {
+        StringBuilder str = new StringBuilder(  );
+        for ( int i = 0; i < terms.size() - 1; i++ )
+        {
+            str.append(terms.get( i ));
+            str.append(",");
+        }
+        str.append( terms.get( terms.size() - 1 ) );
+        return str.toString();
+    }
 }

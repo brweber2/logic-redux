@@ -65,4 +65,10 @@ public class AnNumeric implements Numeric {
     {
         return this;
     }
+
+    @Override
+    public String toString()
+    {
+        return number;
+    }
 }

@@ -55,4 +55,10 @@ public class AVariable implements Variable {
     public int hashCode() {
         return variable.hashCode();
     }
+
+    @Override
+    public String toString()
+    {
+        return "@" + variable;
+    }
 }

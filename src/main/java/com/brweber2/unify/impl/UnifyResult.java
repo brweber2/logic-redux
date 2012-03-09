@@ -127,6 +127,11 @@ public class UnifyResult implements UnificationResult {
         bindings.shareBoundValues(a, b);
     }
 
+    public Binding getCopy()
+    {
+        return bindings.getCopy();
+    }
+
     public void dumpVariables()
     {
         bindings.dumpVariables();
