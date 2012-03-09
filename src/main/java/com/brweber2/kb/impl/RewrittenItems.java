@@ -6,6 +6,12 @@ import com.brweber2.rule.Conjunction;
 import com.brweber2.rule.Disjunction;
 import com.brweber2.rule.Goal;
 import com.brweber2.rule.RuleBody;
+import com.brweber2.term.Term;
+import com.brweber2.unify.Binding;
+import com.brweber2.unify.Unifier;
+import com.brweber2.unify.UnifyResult;
+import com.brweber2.unify.impl.Unify;
+import com.brweber2.unify.impl.WrappedBinding;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -21,10 +27,11 @@ public class RewrittenItems {
     private Goal goal;
     private Fact ruleHead;
     private Collection<Deque<Goal>> goals = new ArrayList<Deque<Goal>>();
+    private Binding binding;
     
-    public RewrittenItems( Goal goal, Rule rule )
+    public RewrittenItems( Goal goal, Rule rule, Binding binding )
     {
-        // todo re-write variables in these two...
+        this.binding = binding;
         this.goal = goal;
         this.ruleHead = rule.getHead();
 
@@ -49,6 +56,12 @@ public class RewrittenItems {
         }
         currentGoals.add( (Goal) newGoal );
         goals.add( currentGoals );
+    }
+    
+    public UnifyResult getUnifyResult()
+    {
+        Unifier unifier = new Unify();
+        return unifier.unify( goal, (Term) ruleHead, new RuleBinding(binding) );
     }
 
     public Goal getGoal() {

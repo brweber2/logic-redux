@@ -79,8 +79,8 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                 {
                     Rule rule = (Rule) clause;
                     System.out.println("checking rule " + rule);
-                    RewrittenItems rewrittenItems = new RewrittenItems( goal, rule );
-                    UnifyResult unifyResult = unifier.unify( rewrittenItems.getGoal(), (Term) rewrittenItems.getRuleHead(), new WrappedBinding(originalBinding) );
+                    RewrittenItems rewrittenItems = new RewrittenItems( goal, rule, originalBinding );
+                    UnifyResult unifyResult = rewrittenItems.getUnifyResult();
 //                    UnifyResult unifyResult = rewrittenItems.getGoal().unify( rewrittenItems.getRuleHead().getTerm(), originalBinding );
                     if ( unifyResult.succeeded() )
                     {
