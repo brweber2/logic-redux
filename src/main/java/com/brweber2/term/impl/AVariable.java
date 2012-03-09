@@ -22,12 +22,10 @@ public class AVariable implements Variable {
         return variable;
     }
 
-    @Override
     public UnifyResult unify(Term other) {
         return unify(other, new Bindings());
     }
 
-    @Override
     public UnifyResult unify(Term other, Binding binding) {
         UnificationResult result = new com.brweber2.unify.impl.UnifyResult(binding);
         if ( other instanceof Variable )

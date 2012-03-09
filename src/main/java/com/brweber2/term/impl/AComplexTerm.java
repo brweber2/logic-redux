@@ -41,12 +41,10 @@ public class AComplexTerm implements ComplexTerm {
         return terms;
     }
 
-    @Override
     public UnifyResult unify(Term other) {
         return unify(other, new Bindings());
     }
 
-    @Override
     public UnifyResult unify(Term other, Binding binding) {
         UnificationResult result = new com.brweber2.unify.impl.UnifyResult(binding);
         if ( other instanceof ComplexTerm )
@@ -82,5 +80,10 @@ public class AComplexTerm implements ComplexTerm {
         int result = functor.hashCode();
         result = 31 * result + terms.hashCode();
         return result;
+    }
+
+    public Term getTerm()
+    {
+        return this;
     }
 }

@@ -3,10 +3,10 @@ package com.brweber2.kb.impl;
 import com.brweber2.kb.Fact;
 import com.brweber2.kb.Knowledge;
 import com.brweber2.kb.KnowledgeBase;
-import com.brweber2.kb.Query;
 import com.brweber2.kb.Rule;
 import com.brweber2.proofsearch.ProofSearch;
 import com.brweber2.rule.Goal;
+import com.brweber2.term.Term;
 import com.brweber2.unify.Binding;
 import com.brweber2.unify.UnifyResult;
 import com.brweber2.unify.impl.Bindings;
@@ -32,7 +32,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         clauses.add(knowledge);
     }
     
-    public void pose( Query query )
+    public void pose( Goal query )
     {
         try
         {
@@ -65,7 +65,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                 if ( clause instanceof Fact )
                 {
                     Fact fact = (Fact) clause;
-                    UnifyResult unifyResult = goal.unify( fact.getTerm(), originalBinding );
+                    UnifyResult unifyResult = goal.unify( (Term) fact, originalBinding );
                     if ( unifyResult.succeeded() )
                     {
                         print( unifyResult );
@@ -75,7 +75,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                 {
                     Rule rule = (Rule) clause;
                     RewrittenItems rewrittenItems = new RewrittenItems( goal, rule );
-                    UnifyResult unifyResult = rewrittenItems.getGoal().unify( rewrittenItems.getRuleHead(), originalBinding );
+                    UnifyResult unifyResult = rewrittenItems.getGoal().unify( rewrittenItems.getRuleHead().getTerm(), originalBinding );
                     if ( unifyResult.succeeded() )
                     {
                         for ( Deque<Goal> newGoals : rewrittenItems.getSetsOfNewGoals() )

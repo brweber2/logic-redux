@@ -17,7 +17,6 @@ import java.util.List;
  */
 public class Unify implements Unifier {
 
-    @Override
     public UnifyResult unify(Term a, Term b) {
         UnifyResult result = new UnifyResult();
         unify( result, a, b );

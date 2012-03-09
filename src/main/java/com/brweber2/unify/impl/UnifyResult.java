@@ -29,40 +29,34 @@ public class UnifyResult implements UnificationResult {
         this.bindings = bindings;
     }
 
-    @Override
     public void set(boolean succeeded, Atom a, Atom b) {
         this.successful = succeeded;
         this.left = a;
         this.right = b;
     }
 
-    @Override
     public void set(boolean succeeded, Numeric a, Numeric b) {
         this.successful = succeeded;
         this.left = a;
         this.right = b;
     }
 
-    @Override
     public void set(boolean succeeded, ComplexTerm a, ComplexTerm b) {
         this.successful = succeeded;
         this.left = a;
         this.right = b;
     }
 
-    @Override
     public void fail(Term a, Term b) {
         this.successful = false;
         this.left = a;
         this.right = b;
     }
 
-    @Override
     public boolean succeeded() {
         return successful;
     }
 
-    @Override
     public Binding bindings() {
         return bindings;
     }
@@ -75,17 +69,14 @@ public class UnifyResult implements UnificationResult {
         return right;
     }
 
-    @Override
     public boolean isBound(Variable a) {
         return bindings.isBound(a);
     }
 
-    @Override
     public Set<Variable> getVariables() {
         return bindings.getVariables();
     }
 
-    @Override
     public void shareValues(Variable a, Variable b) {
         if ( isBound(a) && isBound(b) )
         {
@@ -108,7 +99,6 @@ public class UnifyResult implements UnificationResult {
         }
     }
 
-    @Override
     public void instantiate(Variable a, Term b) {
         if ( isBound(a) )
         {
@@ -129,13 +119,16 @@ public class UnifyResult implements UnificationResult {
         }
     }
 
-    @Override
     public Term resolve(Variable a) {
         return bindings.resolve(a);
     }
 
-    @Override
     public void shareBoundValues(Variable a, Variable b) {
         bindings.shareBoundValues(a, b);
+    }
+
+    public void dumpVariables()
+    {
+        bindings.dumpVariables();
     }
 }

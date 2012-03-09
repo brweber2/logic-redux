@@ -23,12 +23,10 @@ public class AnAtom implements Atom {
         return atom;
     }
 
-    @Override
     public UnifyResult unify(Term other) {
         return unify(other, new Bindings());
     }
 
-    @Override
     public UnifyResult unify(Term other, Binding binding) {
         UnificationResult result = new com.brweber2.unify.impl.UnifyResult(binding);
         if ( other instanceof Atom )
@@ -61,5 +59,10 @@ public class AnAtom implements Atom {
     @Override
     public int hashCode() {
         return atom.hashCode();
+    }
+
+    public Term getTerm()
+    {
+        return this;
     }
 }

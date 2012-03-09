@@ -6,7 +6,7 @@ import com.brweber2.term.Term;
  * @author brweber2
  *         Copyright: 2012
  */
-public interface Goal extends Term
+public interface Goal extends RuleBody, Term
 {
 
 }

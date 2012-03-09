@@ -49,7 +49,6 @@ public class Bindings implements Binding {
         return null;
     }
 
-    @Override
     public void shareBoundValues(Variable a, Variable b) {
         String uuid = lookups.get(a);
         lookups.put(b,uuid);
@@ -57,6 +56,6 @@ public class Bindings implements Binding {
 
     public void dumpVariables()
     {
-
+        System.out.println("dumping variables...");
     }
 }

@@ -23,12 +23,10 @@ public class AnNumeric implements Numeric {
         return number;
     }
 
-    @Override
     public UnifyResult unify(Term other) {
         return unify(other, new Bindings());
     }
 
-    @Override
     public UnifyResult unify(Term other, Binding binding) {
         UnificationResult result = new com.brweber2.unify.impl.UnifyResult(binding);
         if ( other instanceof Numeric)
@@ -61,5 +59,10 @@ public class AnNumeric implements Numeric {
     @Override
     public int hashCode() {
         return number.hashCode();
+    }
+
+    public Term getTerm()
+    {
+        return this;
     }
 }

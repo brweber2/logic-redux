@@ -1,10 +1,11 @@
 package com.brweber2.kb.impl;
 
+import com.brweber2.kb.Fact;
 import com.brweber2.kb.Rule;
 import com.brweber2.rule.Conjunction;
 import com.brweber2.rule.Disjunction;
 import com.brweber2.rule.Goal;
-import com.brweber2.term.Term;
+import com.brweber2.rule.RuleBody;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -18,40 +19,43 @@ import java.util.Deque;
 public class RewrittenItems {
     
     private Goal goal;
-    private Term ruleHead;
+    private Fact ruleHead;
     private Collection<Deque<Goal>> goals = new ArrayList<Deque<Goal>>();
     
     public RewrittenItems( Goal goal, Rule rule )
     {
         // todo re-write variables in these two...
         this.goal = goal;
-        this.ruleHead = rule.getHead().getTerm();
+        this.ruleHead = rule.getHead();
 
         Deque<Goal> currentGoals = new ArrayDeque<Goal>();
-        for ( Goal newGoal : rule.getBody().getGoals() )
+        RuleBody newGoal = rule.getBody();
+        while ( newGoal instanceof Conjunction || newGoal instanceof Disjunction )
         {
             if ( newGoal instanceof Conjunction )
             {
                 Conjunction conjunction = (Conjunction) newGoal;
-            }
-            else if ( newGoal instanceof Disjunction )
-            {
-                Disjunction conjunction = (Disjunction) newGoal;
-                goals.add( conjunction.getLeft() );
+                currentGoals.add( conjunction.getLeft() );
+                newGoal = conjunction.getRight();
             }
             else
             {
-
+                Disjunction disjunction = (Disjunction) newGoal;
+                currentGoals.add( disjunction.getLeft() );
+                goals.add( currentGoals );
+                currentGoals = new ArrayDeque<Goal>();
+                newGoal = disjunction.getRight();
             }
         }
-        
+        currentGoals.add( (Goal) newGoal );
+        goals.add( currentGoals );
     }
 
     public Goal getGoal() {
         return goal;
     }
 
-    public Term getRuleHead() {
+    public Fact getRuleHead() {
         return ruleHead;
     }
 
