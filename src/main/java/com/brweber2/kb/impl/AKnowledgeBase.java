@@ -80,10 +80,10 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         Goal goal = goals.pollFirst();
         while ( goal != null )
         {
-            log.finest("goal before rewrite is " + goal);
-            goal = (Goal) rewriteGoal( goal, bindingToUse1 );
+//            log.info("goal before rewrite is " + goal);
+//            goal = (Goal) rewriteGoal( goal, bindingToUse1 );
             Binding bindingToUse = bindingToUse1.getCopy();
-            log.finest("rewritten goal is " + goal);
+//            log.info("rewritten goal is " + goal);
             boolean ruleMatched = false; // only use the first rule that matches
             for ( Knowledge clause : getClauses(goal) )
             {
@@ -94,7 +94,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                     UnifyResult unifyResult = unifier.unify( goal, (Term) fact, new WrappedBinding(bindingToUse) );
                     if ( unifyResult.succeeded() )
                     {
-                        log.finer("bbw when unify succeeded goals size is " + goals.size());
+                        log.info("bbw when unify succeeded goals size is " + goals.size() + " with " + unifyResult.bindings());
                         if ( goals.isEmpty() )
                         {   // since this is our last one, we have  match
                             if ( ruleAsked )
@@ -118,8 +118,8 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                 {
                     Rule rule = (Rule) clause;
                     log.finest("goal " + goal + " checking rule " + rule + " with " + bindingToUse);
-                    RewrittenItems rewrittenItems = new RewrittenItems( goal, rule, bindingToUse );
-                    UnifyResult unifyResult = rewrittenItems.getUnifyResult();
+                    RewrittenItems rewrittenItems = new RewrittenItems( goal, rule );
+                    UnifyResult unifyResult = rewrittenItems.getUnifyResult(bindingToUse);
                     if ( unifyResult.succeeded() )
                     {
                         log.fine("rule match so far, checking rest of goals");
@@ -139,7 +139,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         }
     }
     
-    public Term rewriteGoal( Term goal, Binding binding )
+    public static Term rewriteGoal( Term goal, Binding binding )
     {
         if ( goal instanceof Constant )
         {
@@ -173,10 +173,15 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
     
     public void print( UnifyResult unifyResult )
     {
+        print( unifyResult.bindings() );
+    }
+    
+    public void print( Binding binding )
+    {
         try
         {
             log.info("yes");
-            unifyResult.bindings().dumpVariables();
+            binding.dumpVariables();
             // todo add this back in...
 //            BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
 //            String line = br.readLine();

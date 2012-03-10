@@ -25,16 +25,17 @@ import java.util.Deque;
 public class RewrittenItems {
     
     private Goal goal;
-    private Fact ruleHead;
+    private Rule rule;
     private Collection<Deque<Goal>> goals = new ArrayList<Deque<Goal>>();
-    private Binding binding;
     
-    public RewrittenItems( Goal goal, Rule rule, Binding binding )
+    public RewrittenItems( Goal goal, Rule rule )
     {
-        this.binding = binding;
         this.goal = goal;
-        this.ruleHead = rule.getHead();
+        this.rule = rule;
+    }
 
+    private void rewrite(Binding binding)
+    {
         Deque<Goal> currentGoals = new ArrayDeque<Goal>();
         RuleBody newGoal = rule.getBody();
         while ( newGoal instanceof Conjunction || newGoal instanceof Disjunction )
@@ -42,26 +43,31 @@ public class RewrittenItems {
             if ( newGoal instanceof Conjunction )
             {
                 Conjunction conjunction = (Conjunction) newGoal;
-                currentGoals.add( conjunction.getLeft() );
+                Goal leftTerm = (Goal) AKnowledgeBase.rewriteGoal( conjunction.getLeft(), binding );
+                currentGoals.add( leftTerm );
                 newGoal = conjunction.getRight();
             }
             else
             {
                 Disjunction disjunction = (Disjunction) newGoal;
-                currentGoals.add( disjunction.getLeft() );
+                Goal leftTerm = (Goal) AKnowledgeBase.rewriteGoal( disjunction.getLeft(), binding );
+                currentGoals.add( leftTerm );
                 goals.add( currentGoals );
                 currentGoals = new ArrayDeque<Goal>();
                 newGoal = disjunction.getRight();
             }
         }
-        currentGoals.add( (Goal) newGoal );
+        Goal lastTerm = (Goal) AKnowledgeBase.rewriteGoal( (Goal) newGoal, binding );
+        currentGoals.add( lastTerm );
         goals.add( currentGoals );
     }
     
-    public UnifyResult getUnifyResult()
+    public UnifyResult getUnifyResult(Binding binding)
     {
         Unifier unifier = new Unify();
-        return unifier.unify( goal, (Term) ruleHead, new RuleBinding(binding) );
+        UnifyResult unifyResult = unifier.unify( goal, (Term) rule.getHead(), new RuleBinding(binding) );
+        rewrite(unifyResult.bindings());
+        return unifyResult;
     }
 
     public Goal getGoal() {
@@ -69,7 +75,7 @@ public class RewrittenItems {
     }
 
     public Fact getRuleHead() {
-        return ruleHead;
+        return rule.getHead();
     }
 
     public Collection<Deque<Goal>> getSetsOfNewGoals() {
