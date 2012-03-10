@@ -71,6 +71,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
     {
         for ( final Goal goal : goals )
         {
+            boolean ruleMatched = false; //
             for ( Knowledge clause : getClauses(goal) )
             {
                 if ( clause instanceof Fact )
@@ -84,7 +85,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                         print( unifyResult );
                     }
                 }
-                else if ( clause instanceof Rule )
+                else if ( !ruleMatched && clause instanceof Rule )
                 {
                     Rule rule = (Rule) clause;
                     System.out.println("goal " + goal + " checking rule " + rule + " with " + originalBinding);
@@ -93,6 +94,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
 //                    UnifyResult unifyResult = rewrittenItems.getGoal().unify( rewrittenItems.getRuleHead().getTerm(), originalBinding );
                     if ( unifyResult.succeeded() )
                     {
+                        ruleMatched = true;
                         System.out.println("rule match so far, checking rest of goals");
                         for ( Deque<Goal> newGoals : rewrittenItems.getSetsOfNewGoals() )
                         {
@@ -103,7 +105,10 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                 }
                 else
                 {
-                    throw new RuntimeException( "Unknown clause type for " + clause );
+                    if ( !ruleMatched ) // we have to ignore rules once we've matched ...
+                    {
+                        throw new RuntimeException( "Unknown clause type for " + clause.getClass().getName() );
+                    }
                 }
             }
         }

@@ -36,6 +36,8 @@ public class ProofSearchTest
                     new AComplexTerm( "related", new AVariable( "Z" ), new AVariable( "Y" ) ) ) ) );
 
 //        kb.pose( new AComplexTerm("parent", new AnAtom( "Tim" ), new AVariable( "Y" ) ) );
-        kb.pose( new AComplexTerm("related", new AnAtom( "Tim" ), new AVariable( "Y" ) ) );
+//        kb.pose( new AComplexTerm("related", new AnAtom( "Ralph" ), new AVariable( "Y" ) ) );
+
+        kb.pose( new AComplexTerm("related", new AnAtom( "Ralph" ), new AnAtom( "Bob" ) ) );
     }
 }
