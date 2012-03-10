@@ -11,6 +11,8 @@ import com.brweber2.rule.impl.ARule;
 import com.brweber2.term.impl.AComplexTerm;
 import com.brweber2.term.impl.AVariable;
 import com.brweber2.term.impl.AnAtom;
+import com.brweber2.unify.impl.Bindings;
+import com.brweber2.unify.impl.Unify;
 import org.testng.annotations.Test;
 
 public class ProofSearchTest
@@ -39,5 +41,15 @@ public class ProofSearchTest
 //        kb.pose( new AComplexTerm("related", new AnAtom( "Ralph" ), new AVariable( "Y" ) ) );
 
         kb.pose( new AComplexTerm("related", new AnAtom( "Ralph" ), new AnAtom( "Bob" ) ) );
+    }
+    
+    @Test(enabled = false)
+    public void testUnifyWithBinding()
+    {
+        Binding bindings = new Bindings();
+        bindings.instantiate( new AVariable( "X" ), new AnAtom( "Ralph" ) );
+        bindings.instantiate( new AVariable( "Y" ), new AnAtom( "Bob" ) );
+        Unifier unifier = new Unify();
+        unifier.unify( new AComplexTerm( "parent", new AVariable( "X" ), new AVariable( "Z" ) ), new AComplexTerm( "parent", new AnAtom( "Ralph" ), new AnAtom( "Tim" ) ), bindings );
     }
 }

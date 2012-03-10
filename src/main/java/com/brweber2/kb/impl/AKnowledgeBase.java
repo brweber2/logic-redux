@@ -7,7 +7,11 @@ import com.brweber2.kb.KnowledgeBase;
 import com.brweber2.kb.Rule;
 import com.brweber2.proofsearch.ProofSearch;
 import com.brweber2.rule.Goal;
+import com.brweber2.term.ComplexTerm;
+import com.brweber2.term.Constant;
 import com.brweber2.term.Term;
+import com.brweber2.term.Variable;
+import com.brweber2.term.impl.AComplexTerm;
 import com.brweber2.unify.Binding;
 import com.brweber2.unify.Unifier;
 import com.brweber2.unify.UnifyResult;
@@ -20,7 +24,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * @author brweber2
@@ -29,8 +35,8 @@ import java.util.Map;
 public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
     
     Map<Functor,Collection<Knowledge>> clauses = new HashMap<Functor,Collection<Knowledge>>();
-//    List<Knowledge> clauses = new ArrayList<Knowledge>();
     Unifier unifier = new Unify();
+    Logger log = Logger.getLogger( AKnowledgeBase.class.getName() );
     
     public void assertKnowledge( Knowledge knowledge )
     {
@@ -44,7 +50,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
     
     public void pose( Goal query )
     {
-        System.out.println("asking " + query);
+        log.fine("asking " + query);
         try
         {
             Deque<Goal> goals = new ArrayDeque<Goal>();
@@ -64,53 +70,104 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
 
     public void satisfy( Deque<Goal> goals )
     {
-        satisfy( goals, new Bindings() );
+        satisfy( goals, new Bindings(), false );
     }
 
-    public void satisfy( Deque<Goal> goals, Binding originalBinding )
+    public void satisfy( Deque<Goal> goals, Binding parentBinding, boolean ruleAsked )
     {
-        for ( final Goal goal : goals )
+        Binding bindingToUse1 = new WrappedBinding( parentBinding );
+        log.finer("there are " + goals.size() + " goals");
+        Goal goal = goals.pollFirst();
+        while ( goal != null )
         {
-            boolean ruleMatched = false; //
+            log.finest("goal before rewrite is " + goal);
+            goal = (Goal) rewriteGoal( goal, bindingToUse1 );
+            Binding bindingToUse = bindingToUse1.getCopy();
+            log.finest("rewritten goal is " + goal);
+            boolean ruleMatched = false; // only use the first rule that matches
             for ( Knowledge clause : getClauses(goal) )
             {
                 if ( clause instanceof Fact )
                 {
                     Fact fact = (Fact) clause;
-                    System.out.println("goal " + goal + " checking fact " + fact + " with " + originalBinding);
-                    UnifyResult unifyResult = unifier.unify( goal, (Term) fact, new WrappedBinding(originalBinding) );
-//                    UnifyResult unifyResult = goal.unify( (Term) fact, originalBinding );
+                    log.finest("goal " + goal + " checking fact " + fact + " with " + bindingToUse);
+                    UnifyResult unifyResult = unifier.unify( goal, (Term) fact, new WrappedBinding(bindingToUse) );
                     if ( unifyResult.succeeded() )
                     {
-                        print( unifyResult );
+                        log.finer("bbw when unify succeeded goals size is " + goals.size());
+                        if ( goals.isEmpty() )
+                        {   // since this is our last one, we have  match
+                            if ( ruleAsked )
+                            {
+                                ruleMatched = true;
+                            }
+                            print( unifyResult );
+                        }
+                        else
+                        {
+                            satisfy( goals, unifyResult.bindings(), ruleAsked );
+                            return;
+                        }
                     }
                 }
-                else if ( !ruleMatched && clause instanceof Rule )
+                else if ( ruleMatched & clause instanceof Rule )
+                {
+                    // safely ignore me
+                }
+                else if ( clause instanceof Rule )
                 {
                     Rule rule = (Rule) clause;
-                    System.out.println("goal " + goal + " checking rule " + rule + " with " + originalBinding);
-                    RewrittenItems rewrittenItems = new RewrittenItems( goal, rule, originalBinding );
+                    log.finest("goal " + goal + " checking rule " + rule + " with " + bindingToUse);
+                    RewrittenItems rewrittenItems = new RewrittenItems( goal, rule, bindingToUse );
                     UnifyResult unifyResult = rewrittenItems.getUnifyResult();
-//                    UnifyResult unifyResult = rewrittenItems.getGoal().unify( rewrittenItems.getRuleHead().getTerm(), originalBinding );
                     if ( unifyResult.succeeded() )
                     {
-                        ruleMatched = true;
-                        System.out.println("rule match so far, checking rest of goals");
+                        log.fine("rule match so far, checking rest of goals");
                         for ( Deque<Goal> newGoals : rewrittenItems.getSetsOfNewGoals() )
                         {
-                            System.out.println("trying to satisfy " + newGoals + " with " + unifyResult.bindings() );
-                            satisfy( newGoals, unifyResult.bindings() );
+                            log.finer("trying to satisfy " + newGoals + " with " + unifyResult.bindings() );
+                            satisfy( newGoals, unifyResult.bindings(), true );
                         }
                     }
                 }
                 else
                 {
-                    if ( !ruleMatched ) // we have to ignore rules once we've matched ...
-                    {
-                        throw new RuntimeException( "Unknown clause type for " + clause.getClass().getName() );
-                    }
+                    throw new RuntimeException( "Unknown clause type for " + clause.getClass().getName() );
                 }
             }
+            goal = goals.pollFirst();
+        }
+    }
+    
+    public Term rewriteGoal( Term goal, Binding binding )
+    {
+        if ( goal instanceof Constant )
+        {
+            return goal;
+        }
+        else if ( goal instanceof ComplexTerm )
+        {
+            ComplexTerm original = (ComplexTerm) goal;
+            List<Term> newTerms = new ArrayList<Term>(  );
+            for ( Term term : original.getTerms() )
+            {
+                newTerms.add( rewriteGoal( term, binding ) );
+            }
+            return new AComplexTerm( original.getFunctor().getFunctorString(), newTerms.toArray( new Term[newTerms.size()] ) );
+        }
+        else if ( goal instanceof Variable )
+        {
+            Variable var = (Variable) goal;
+            if ( binding.isBound( var ) )
+            {
+                binding.markToUnbind( var );
+                return binding.resolve( var );
+            }
+            return var;
+        }
+        else
+        {
+            throw new RuntimeException( "What have you given me???" );
         }
     }
     
@@ -118,7 +175,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
     {
         try
         {
-            System.out.println("yes");
+            log.info("yes");
             unifyResult.bindings().dumpVariables();
             // todo add this back in...
 //            BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );

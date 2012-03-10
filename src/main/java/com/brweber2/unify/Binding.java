@@ -12,6 +12,9 @@ import java.util.Set;
 public interface Binding {
 
     boolean isBound( Variable a );
+    void unbind(Variable a);
+    void unbindMarked();
+    void markToUnbind(Variable a);
     Set<Variable> getVariables();
     void shareValues(Variable a, Variable b);
     void instantiate(Variable a, Term b);

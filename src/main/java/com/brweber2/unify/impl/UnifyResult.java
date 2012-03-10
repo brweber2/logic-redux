@@ -73,6 +73,21 @@ public class UnifyResult implements UnificationResult {
         return bindings.isBound(a);
     }
 
+    public void unbind( Variable a )
+    {
+        bindings.unbind( a );
+    }
+
+    public void unbindMarked()
+    {
+        bindings.unbindMarked();
+    }
+
+    public void markToUnbind( Variable a )
+    {
+        bindings.markToUnbind( a );
+    }
+
     public Set<Variable> getVariables() {
         return bindings.getVariables();
     }

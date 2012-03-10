@@ -24,6 +24,21 @@ public class WrappedBinding implements Binding
         return binding.isBound( a );
     }
 
+    public void unbind( Variable a )
+    {
+        binding.unbind( a );
+    }
+
+    public void unbindMarked()
+    {
+        binding.unbindMarked();
+    }
+
+    public void markToUnbind( Variable a )
+    {
+        binding.markToUnbind( a );
+    }
+
     public Set<Variable> getVariables()
     {
         return binding.getVariables();
