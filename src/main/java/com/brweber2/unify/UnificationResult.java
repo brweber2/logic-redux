@@ -4,16 +4,16 @@ import com.brweber2.term.Atom;
 import com.brweber2.term.ComplexTerm;
 import com.brweber2.term.Numeric;
 import com.brweber2.term.Term;
-
-import java.util.Map;
+import com.brweber2.term.Variable;
 
 /**
  * @author brweber2
  *         Copyright: 2012
  */
-public interface UnificationResult extends UnifyResult, Binding {
+public interface UnificationResult extends UnifyResult {
     void set(boolean succeeded, Atom a, Atom b);
     void set(boolean succeeded, Numeric a, Numeric b);
+    void set(boolean succeeded, Variable a, Term b);
     void set(boolean succeeded, ComplexTerm a, ComplexTerm b);
 
     void fail(Term a, Term b);

@@ -8,8 +8,6 @@ import com.brweber2.term.Variable;
 import com.brweber2.unify.Binding;
 import com.brweber2.unify.UnificationResult;
 
-import java.util.Set;
-
 /**
  * @author brweber2
  *         Copyright: 2012
@@ -22,7 +20,7 @@ public class UnifyResult implements UnificationResult {
     private Term right;
 
     public UnifyResult() {
-        this.bindings = new Bindings();
+        this.bindings = new ABinding();
     }
 
     public UnifyResult(Binding bindings) {
@@ -36,6 +34,13 @@ public class UnifyResult implements UnificationResult {
     }
 
     public void set(boolean succeeded, Numeric a, Numeric b) {
+        this.successful = succeeded;
+        this.left = a;
+        this.right = b;
+    }
+
+    public void set( boolean succeeded, Variable a, Term b )
+    {
         this.successful = succeeded;
         this.left = a;
         this.right = b;
@@ -69,86 +74,4 @@ public class UnifyResult implements UnificationResult {
         return right;
     }
 
-    public boolean isBound(Variable a) {
-        return bindings.isBound(a);
-    }
-
-    public void unbind( Variable a )
-    {
-        bindings.unbind( a );
-    }
-
-    public void unbindMarked()
-    {
-        bindings.unbindMarked();
-    }
-
-    public void markToUnbind( Variable a )
-    {
-        bindings.markToUnbind( a );
-    }
-
-    public Set<Variable> getVariables() {
-        return bindings.getVariables();
-    }
-
-    public void shareValues(Variable a, Variable b) {
-        if ( isBound(a) && isBound(b) )
-        {
-            this.successful = bindings.resolve(a).equals(bindings.resolve(b));
-        }
-        else if ( isBound(a) )
-        {
-            bindings.shareBoundValues(a,b);
-            this.successful = true;
-        }
-        else if ( isBound(b) )
-        {
-            bindings.shareBoundValues(b,a);
-            this.successful = true;
-        }
-        else
-        {
-            bindings.shareValues(a,b);
-            this.successful = true;
-        }
-    }
-
-    public void instantiate(Variable a, Term b) {
-        if ( isBound(a) )
-        {
-            if ( bindings.resolve(a).equals(b) )
-            {
-                this.successful = true;
-                bindings.instantiate(a,b);
-            }
-            else
-            {
-                this.successful =false;
-            }
-        }
-        else
-        {
-            bindings.instantiate(a,b);
-            this.successful = true;
-        }
-    }
-
-    public Term resolve(Variable a) {
-        return bindings.resolve(a);
-    }
-
-    public void shareBoundValues(Variable a, Variable b) {
-        bindings.shareBoundValues(a, b);
-    }
-
-    public Binding getCopy()
-    {
-        return bindings.getCopy();
-    }
-
-    public void dumpVariables()
-    {
-        bindings.dumpVariables();
-    }
 }

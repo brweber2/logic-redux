@@ -5,7 +5,7 @@ import com.brweber2.term.impl.AComplexTerm;
 import com.brweber2.term.impl.AVariable;
 import com.brweber2.term.impl.AnAtom;
 import com.brweber2.term.impl.AnNumeric;
-import com.brweber2.unify.impl.Bindings;
+import com.brweber2.unify.impl.ABinding;
 import com.brweber2.unify.impl.Unify;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -43,7 +43,7 @@ public class UnifyTest {
     {
         shouldVariableAtomUnify(new AnAtom("foo"), new AVariable("bar"));
         shouldVariableAtomUnify(new AVariable("bar"), new AnAtom("foo"));
-        Binding binding = new Bindings();
+        Binding binding = new ABinding();
         binding.instantiate(new AVariable("bar"),new AnAtom("foo"));
         shouldVariableAtomUnify(new AVariable("bar"), new AnAtom("foo"), binding);
     }
@@ -53,33 +53,33 @@ public class UnifyTest {
     {
         shouldVariableAtomUnify( new AnAtom("foo"), new AVariable("bar") );
         shouldVariableAtomUnify( new AVariable("bar"), new AnAtom("foo") );
-        Binding binding = new Bindings();
+        Binding binding = new ABinding();
         binding.instantiate(new AVariable("bar"),new AnAtom("quux"));
         shouldVariableAtomNotUnify(new AVariable("bar"), new AnAtom("foo"), binding);
     }
 
     private void shouldComplexTermUnify( Term a, Term b )
     {
-        UnifyResult result = a.unify(b);
+        UnifyResult result = new Unify().unify( a, b );
         Assert.assertTrue(result.succeeded());
         Assert.assertTrue(result.bindings().getVariables().isEmpty() );
     }
 
     private void shouldComplexTermNotUnify( Term a, Term b )
     {
-        UnifyResult result = a.unify(b);
+        UnifyResult result = new Unify().unify( a, b );
         Assert.assertFalse(result.succeeded());
         Assert.assertTrue(result.bindings().getVariables().isEmpty() );
     }
     
     private void shouldVariableAtomUnify( Term a, Term b )
     {
-        shouldVariableAtomUnify(a, b, new Bindings());
+        shouldVariableAtomUnify(a, b, new ABinding());
     }
     
     private void shouldVariableAtomUnify( Term a, Term b, Binding binding )
     {
-        UnifyResult resultOne = a.unify(b,binding);
+        UnifyResult resultOne = new Unify().unify( a, b, binding);
         Assert.assertTrue(resultOne.succeeded());
         Assert.assertEquals(resultOne.bindings().getVariables().size(), 1);
         Assert.assertTrue(resultOne.bindings().getVariables().contains(new AVariable("bar")));
@@ -88,7 +88,7 @@ public class UnifyTest {
 
     private void shouldVariableAtomNotUnify( Term a, Term b, Binding binding )
     {
-        UnifyResult resultOne = a.unify(b,binding);
+        UnifyResult resultOne = new Unify().unify( a, b, binding);
         Assert.assertFalse(resultOne.succeeded());
         Assert.assertEquals(resultOne.bindings().getVariables().size(), 1);
         Assert.assertTrue(resultOne.bindings().getVariables().contains(new AVariable("bar")));
@@ -97,11 +97,11 @@ public class UnifyTest {
     
     private void shouldAtomUnify( Term a, Term b )
     {
-        UnifyResult resultOne = a.unify(b);
+        UnifyResult resultOne = new Unify().unify( a, b);
         Assert.assertTrue(resultOne.succeeded());
         Assert.assertTrue(resultOne.bindings().getVariables().isEmpty() );
 
-        UnifyResult resultTwo = b.unify(a);
+        UnifyResult resultTwo = new Unify().unify( b, a);
         Assert.assertTrue(resultTwo.succeeded());
         Assert.assertTrue(resultTwo.bindings().getVariables().isEmpty() );
 
@@ -117,11 +117,11 @@ public class UnifyTest {
 
     private void shouldNotAtomUnify( Term a, Term b )
     {
-        UnifyResult resultOne = a.unify(b);
+        UnifyResult resultOne = new Unify().unify( a, b);
         Assert.assertFalse(resultOne.succeeded());
         Assert.assertTrue(resultOne.bindings().getVariables().isEmpty() );
 
-        UnifyResult resultTwo = b.unify(a);
+        UnifyResult resultTwo = new Unify().unify( b, a);
         Assert.assertFalse(resultTwo.succeeded());
         Assert.assertTrue(resultTwo.bindings().getVariables().isEmpty() );
 

@@ -15,9 +15,8 @@ import com.brweber2.term.impl.AComplexTerm;
 import com.brweber2.unify.Binding;
 import com.brweber2.unify.Unifier;
 import com.brweber2.unify.UnifyResult;
-import com.brweber2.unify.impl.Bindings;
+import com.brweber2.unify.impl.ABinding;
 import com.brweber2.unify.impl.Unify;
-import com.brweber2.unify.impl.WrappedBinding;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
     
     public void pose( Goal query )
     {
-        log.fine("asking " + query);
+        log.fine( "asking " + query );
         try
         {
             Deque<Goal> goals = new ArrayDeque<Goal>();
@@ -70,31 +69,27 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
 
     public void satisfy( Deque<Goal> goals )
     {
-        satisfy( goals, new Bindings(), false );
+        satisfy( goals, new ABinding(), false );
     }
 
     public void satisfy( Deque<Goal> goals, Binding parentBinding, boolean ruleAsked )
     {
-        Binding bindingToUse1 = new WrappedBinding( parentBinding );
-        log.finer("there are " + goals.size() + " goals");
+        log.finer( "there are " + goals.size() + " goals" );
         Goal goal = goals.pollFirst();
         while ( goal != null )
         {
-//            log.info("goal before rewrite is " + goal);
-//            goal = (Goal) rewriteGoal( goal, bindingToUse1 );
-            Binding bindingToUse = bindingToUse1.getCopy();
-//            log.info("rewritten goal is " + goal);
+            Binding bindingToUse = new ABinding( parentBinding );
             boolean ruleMatched = false; // only use the first rule that matches
             for ( Knowledge clause : getClauses(goal) )
             {
                 if ( clause instanceof Fact )
                 {
                     Fact fact = (Fact) clause;
-                    log.finest("goal " + goal + " checking fact " + fact + " with " + bindingToUse);
-                    UnifyResult unifyResult = unifier.unify( goal, (Term) fact, new WrappedBinding(bindingToUse) );
+                    log.finest( "goal " + goal + " checking fact " + fact + " with " + bindingToUse );
+                    UnifyResult unifyResult = unifier.unify( goal, (Term) fact, new ABinding(bindingToUse) );
                     if ( unifyResult.succeeded() )
                     {
-                        log.info("bbw when unify succeeded goals size is " + goals.size() + " with " + unifyResult.bindings());
+                        log.info( "bbw when unify succeeded goals size is " + goals.size() + " with " + unifyResult.bindings() );
                         if ( goals.isEmpty() )
                         {   // since this is our last one, we have  match
                             if ( ruleAsked )
@@ -117,15 +112,15 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                 else if ( clause instanceof Rule )
                 {
                     Rule rule = (Rule) clause;
-                    log.finest("goal " + goal + " checking rule " + rule + " with " + bindingToUse);
+                    log.finest( "goal " + goal + " checking rule " + rule + " with " + bindingToUse );
                     RewrittenItems rewrittenItems = new RewrittenItems( goal, rule );
                     UnifyResult unifyResult = rewrittenItems.getUnifyResult(bindingToUse);
                     if ( unifyResult.succeeded() )
                     {
-                        log.fine("rule match so far, checking rest of goals");
+                        log.fine( "rule match so far, checking rest of goals" );
                         for ( Deque<Goal> newGoals : rewrittenItems.getSetsOfNewGoals() )
                         {
-                            log.finer("trying to satisfy " + newGoals + " with " + unifyResult.bindings() );
+                            log.finer( "trying to satisfy " + newGoals + " with " + unifyResult.bindings() );
                             satisfy( newGoals, unifyResult.bindings(), true );
                         }
                     }
@@ -160,7 +155,6 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
             Variable var = (Variable) goal;
             if ( binding.isBound( var ) )
             {
-                binding.markToUnbind( var );
                 return binding.resolve( var );
             }
             return var;

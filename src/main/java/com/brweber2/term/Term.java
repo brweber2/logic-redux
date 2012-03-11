@@ -7,7 +7,7 @@ import com.brweber2.unify.Unifiable;
  * @author brweber2
  *         Copyright: 2012
  */
-public interface Term extends Unifiable, Query
+public interface Term extends Query
 {
 
 }

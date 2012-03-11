@@ -42,15 +42,16 @@ public class Unify implements Unifier {
         }
         else if ( a instanceof Variable && b instanceof Variable )
         {
-            unificationResult.shareValues((Variable)a,(Variable)b);
+            unificationResult.bindings().shareValues((Variable)a,(Variable)b);
         }
         else if ( a instanceof Variable )
         {
-            unificationResult.instantiate((Variable)a,b);
+            boolean unfies = new Unify().unify( a, b, unificationResult.bindings() ).succeeded();
+            unificationResult.set( unfies, (Variable) a, b );
         }
         else if ( b instanceof Variable )
         {
-            unificationResult.instantiate((Variable)b,a);
+            unificationResult.bindings().instantiate(a,(Variable)b);
         }
         else if ( a instanceof ComplexTerm && b instanceof ComplexTerm )
         {
