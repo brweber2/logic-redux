@@ -6,6 +6,7 @@ import com.brweber2.term.impl.AVariable;
 import com.brweber2.term.impl.AnAtom;
 import com.brweber2.term.impl.AnNumeric;
 import com.brweber2.unify.impl.ABinding;
+import com.brweber2.unify.impl.RuleBinding;
 import com.brweber2.unify.impl.Unify;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -43,7 +44,7 @@ public class UnifyTest {
     {
         shouldVariableAtomUnify(new AnAtom("foo"), new AVariable("bar"));
         shouldVariableAtomUnify(new AVariable("bar"), new AnAtom("foo"));
-        Binding binding = new ABinding();
+        ABinding binding = new ABinding();
         binding.instantiate(new AVariable("bar"),new AnAtom("foo"));
         shouldVariableAtomUnify(new AVariable("bar"), new AnAtom("foo"), binding);
     }
@@ -54,8 +55,9 @@ public class UnifyTest {
         shouldVariableAtomUnify( new AnAtom("foo"), new AVariable("bar") );
         shouldVariableAtomUnify( new AVariable("bar"), new AnAtom("foo") );
         Binding binding = new ABinding();
-        binding.instantiate(new AVariable("bar"),new AnAtom("quux"));
-        shouldVariableAtomNotUnify(new AVariable("bar"), new AnAtom("foo"), binding);
+        binding.instantiate(new AnAtom("quux"),new AVariable("bar"));
+        RuleBinding ruleBinding = new RuleBinding( binding );
+        shouldVariableAtomNotUnify(new AVariable("bar"), new AnAtom("foo"), ruleBinding);
     }
 
     private void shouldComplexTermUnify( Term a, Term b )
@@ -76,10 +78,17 @@ public class UnifyTest {
     {
         shouldVariableAtomUnify(a, b, new ABinding());
     }
-    
-    private void shouldVariableAtomUnify( Term a, Term b, Binding binding )
+
+    private void shouldVariableAtomUnify( Term a, Term b, RuleBinding binding )
     {
         UnifyResult resultOne = new Unify().unify( a, b, binding);
+        Assert.assertTrue(resultOne.succeeded());
+        Assert.assertEquals(resultOne.bindings().getVariables().size(), 0);
+    }
+
+    private void shouldVariableAtomUnify( Term a, Term b, ABinding binding )
+    {
+        UnifyResult resultOne = new Unify().unify( a, b, binding );
         Assert.assertTrue(resultOne.succeeded());
         Assert.assertEquals(resultOne.bindings().getVariables().size(), 1);
         Assert.assertTrue(resultOne.bindings().getVariables().contains(new AVariable("bar")));
@@ -88,20 +97,20 @@ public class UnifyTest {
 
     private void shouldVariableAtomNotUnify( Term a, Term b, Binding binding )
     {
-        UnifyResult resultOne = new Unify().unify( a, b, binding);
+        UnifyResult resultOne = new Unify().unify( a, b, binding );
         Assert.assertFalse(resultOne.succeeded());
-        Assert.assertEquals(resultOne.bindings().getVariables().size(), 1);
-        Assert.assertTrue(resultOne.bindings().getVariables().contains(new AVariable("bar")));
+        Assert.assertEquals(resultOne.bindings().getVariables().size(), 0);
+        Assert.assertFalse(resultOne.bindings().getVariables().contains(new AVariable("bar")));
         Assert.assertEquals(resultOne.bindings().resolve(new AVariable("bar")), new AnAtom("quux") );
     }
     
     private void shouldAtomUnify( Term a, Term b )
     {
-        UnifyResult resultOne = new Unify().unify( a, b);
+        UnifyResult resultOne = new Unify().unify( a, b );
         Assert.assertTrue(resultOne.succeeded());
         Assert.assertTrue(resultOne.bindings().getVariables().isEmpty() );
 
-        UnifyResult resultTwo = new Unify().unify( b, a);
+        UnifyResult resultTwo = new Unify().unify( b, a );
         Assert.assertTrue(resultTwo.succeeded());
         Assert.assertTrue(resultTwo.bindings().getVariables().isEmpty() );
 
@@ -117,11 +126,11 @@ public class UnifyTest {
 
     private void shouldNotAtomUnify( Term a, Term b )
     {
-        UnifyResult resultOne = new Unify().unify( a, b);
+        UnifyResult resultOne = new Unify().unify( a, b );
         Assert.assertFalse(resultOne.succeeded());
         Assert.assertTrue(resultOne.bindings().getVariables().isEmpty() );
 
-        UnifyResult resultTwo = new Unify().unify( b, a);
+        UnifyResult resultTwo = new Unify().unify( b, a );
         Assert.assertFalse(resultTwo.succeeded());
         Assert.assertTrue(resultTwo.bindings().getVariables().isEmpty() );
 

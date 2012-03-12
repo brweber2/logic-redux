@@ -52,6 +52,11 @@ public class UnifyResult implements UnificationResult {
         this.right = b;
     }
 
+    public void set( boolean succeeded )
+    {
+        this.successful = succeeded;
+    }
+
     public void fail(Term a, Term b) {
         this.successful = false;
         this.left = a;

@@ -16,6 +16,7 @@ import com.brweber2.unify.Binding;
 import com.brweber2.unify.Unifier;
 import com.brweber2.unify.UnifyResult;
 import com.brweber2.unify.impl.ABinding;
+import com.brweber2.unify.impl.RuleBinding;
 import com.brweber2.unify.impl.Unify;
 
 import java.util.ArrayDeque;
@@ -78,7 +79,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         Goal goal = goals.pollFirst();
         while ( goal != null )
         {
-            Binding bindingToUse = new ABinding( parentBinding );
+            Binding bindingToUse = new RuleBinding( parentBinding );
             boolean ruleMatched = false; // only use the first rule that matches
             for ( Knowledge clause : getClauses(goal) )
             {
@@ -86,7 +87,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                 {
                     Fact fact = (Fact) clause;
                     log.finest( "goal " + goal + " checking fact " + fact + " with " + bindingToUse );
-                    UnifyResult unifyResult = unifier.unify( goal, (Term) fact, new ABinding(bindingToUse) );
+                    UnifyResult unifyResult = unifier.unify( goal, (Term) fact, new RuleBinding(bindingToUse) );
                     if ( unifyResult.succeeded() )
                     {
                         log.info( "bbw when unify succeeded goals size is " + goals.size() + " with " + unifyResult.bindings() );

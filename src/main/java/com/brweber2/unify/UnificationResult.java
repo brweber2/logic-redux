@@ -16,5 +16,6 @@ public interface UnificationResult extends UnifyResult {
     void set(boolean succeeded, Variable a, Term b);
     void set(boolean succeeded, ComplexTerm a, ComplexTerm b);
 
+    void set( boolean succeeded);
     void fail(Term a, Term b);
 }

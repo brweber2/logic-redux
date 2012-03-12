@@ -12,7 +12,6 @@ import com.brweber2.unify.Unifier;
 import java.util.List;
 
 /**
- * @deprecated
  * @author brweber2
  *         Copyright: 2012
  */
@@ -43,15 +42,26 @@ public class Unify implements Unifier {
         else if ( a instanceof Variable && b instanceof Variable )
         {
             unificationResult.bindings().shareValues((Variable)a,(Variable)b);
+            unificationResult.set( true );
         }
         else if ( a instanceof Variable )
         {
-            boolean unfies = new Unify().unify( a, b, unificationResult.bindings() ).succeeded();
-            unificationResult.set( unfies, (Variable) a, b );
+            boolean unifies;
+            try
+            {
+                unificationResult.bindings().instantiate( (Variable) a, b );
+                unifies = true;
+            }
+            catch ( FailedToUnifyException e )
+            {
+                unifies = false;
+            }
+            unificationResult.set( unifies, (Variable) a, b );
         }
         else if ( b instanceof Variable )
         {
             unificationResult.bindings().instantiate(a,(Variable)b);
+            unificationResult.set( true );
         }
         else if ( a instanceof ComplexTerm && b instanceof ComplexTerm )
         {
