@@ -6,6 +6,7 @@ import com.brweber2.term.ComplexTerm;
 import com.brweber2.term.Term;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,6 +22,17 @@ public class AComplexTerm implements ComplexTerm {
         this.functor = functor;
         if ( terms != null )
         {
+            for ( Term term : terms )
+            {
+                if ( term == null )
+                {
+                    System.out.println("functor is " + functor);
+                    System.out.println("terms are " + Arrays.toString( terms ) );
+                    RuntimeException e = new RuntimeException( );
+                    e.printStackTrace();
+                    System.exit( -1 );
+                }
+            }
             Collections.addAll(this.terms,terms);
         }
     }
