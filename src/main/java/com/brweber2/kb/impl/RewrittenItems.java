@@ -10,6 +10,7 @@ import com.brweber2.term.Term;
 import com.brweber2.unify.Binding;
 import com.brweber2.unify.Unifier;
 import com.brweber2.unify.UnifyResult;
+import com.brweber2.unify.impl.ABinding;
 import com.brweber2.unify.impl.RuleBinding;
 import com.brweber2.unify.impl.Unify;
 
@@ -65,8 +66,9 @@ public class RewrittenItems {
     public UnifyResult getUnifyResult(Binding binding)
     {
         Unifier unifier = new Unify();
-        UnifyResult unifyResult = unifier.unify( goal, (Term) rule.getHead(), new RuleBinding(binding) );
-        rewrite(unifyResult.bindings());
+        RuleBinding ruleBinding = new RuleBinding(binding);
+        UnifyResult unifyResult = unifier.unify( goal, (Term) rule.getHead(), ruleBinding );
+        rewrite(new ABinding(ruleBinding)); // this strips out parents...
         return unifyResult;
     }
 

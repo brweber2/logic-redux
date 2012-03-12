@@ -18,9 +18,9 @@ public class RuleBinding implements Binding
 {
     private static Logger log = Logger.getLogger( RuleBinding.class.getName() );
 
-    private Binding parent = null;
-    private Map<Variable,String> vars = new HashMap<Variable, String>(  );
-    private Map<String,Term> values = new HashMap<String, Term>(  );
+    Binding parent = null;
+    Map<Variable,String> vars = new HashMap<Variable, String>(  );
+    Map<String,Term> values = new HashMap<String, Term>(  );
 
     public RuleBinding( Binding parent )
     {
@@ -58,18 +58,16 @@ public class RuleBinding implements Binding
 
     public void instantiate( Variable a, Term b )
     {
-        String uuid = UUID.randomUUID().toString();
-        Term value = null;
-        if ( parent != null )
+        boolean unifies = true;
+        if ( parent.isBound( a ))
         {
-            value = parent.resolve( a );
+            Unifier unifier = new Unify();
+            com.brweber2.unify.UnifyResult result = unifier.unify( parent.resolve( a ), b );
+            unifies = result.succeeded();
         }
-        Unifier unifier = new Unify();
-        com.brweber2.unify.UnifyResult result = unifier.unify( value, b );
-        if (result.succeeded() )
+        if (unifies )
         {
-            vars.put( a, uuid );
-            values.put( uuid, b );
+//            parent.instantiate( a, b );
         }
         else
         {

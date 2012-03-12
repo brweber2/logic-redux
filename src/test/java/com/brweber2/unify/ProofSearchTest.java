@@ -43,7 +43,7 @@ public class ProofSearchTest
         kb.pose( new AComplexTerm("related", new AnAtom( "Ralph" ), new AnAtom( "Bob" ) ) );
     }
     
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testUnifyWithBinding()
     {
         Binding bindings = new ABinding();

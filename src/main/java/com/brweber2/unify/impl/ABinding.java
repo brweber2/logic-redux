@@ -24,6 +24,12 @@ public class ABinding implements Binding
     {
     }
 
+    public ABinding(RuleBinding binding)
+    {
+        vars.putAll( binding.vars );
+        values.putAll( binding.values );
+    }
+
     public boolean isBound( Variable a )
     {
         return vars.containsKey( a );
