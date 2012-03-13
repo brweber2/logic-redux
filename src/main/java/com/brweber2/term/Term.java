@@ -1,13 +1,14 @@
 package com.brweber2.term;
 
 import com.brweber2.kb.Query;
+import com.brweber2.rule.RuleBody;
 import com.brweber2.unify.Unifiable;
 
 /**
  * @author brweber2
  *         Copyright: 2012
  */
-public interface Term extends Query
+public interface Term extends RuleBody, Query
 {
 
 }

@@ -6,9 +6,13 @@ import com.brweber2.kb.Knowledge;
 import com.brweber2.kb.KnowledgeBase;
 import com.brweber2.kb.Rule;
 import com.brweber2.proofsearch.ProofSearch;
+import com.brweber2.rule.Conjunction;
+import com.brweber2.rule.Disjunction;
 import com.brweber2.rule.Goal;
+import com.brweber2.term.Atom;
 import com.brweber2.term.ComplexTerm;
 import com.brweber2.term.Constant;
+import com.brweber2.term.Numeric;
 import com.brweber2.term.Term;
 import com.brweber2.term.Variable;
 import com.brweber2.term.impl.AComplexTerm;
@@ -19,6 +23,7 @@ import com.brweber2.unify.impl.ABinding;
 import com.brweber2.unify.impl.RuleBinding;
 import com.brweber2.unify.impl.Unify;
 
+import java.lang.management.GarbageCollectorMXBean;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,7 +70,30 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
 
     private Collection<Knowledge> getClauses( Goal goal )
     {
-        return clauses.get( goal.getFunctor() );
+        if ( goal instanceof Atom)
+        {
+            return clauses.get(((Atom)goal).getFunctor());
+        }
+        else if ( goal instanceof Numeric )
+        {
+            return clauses.get(((Numeric)goal).getFunctor());
+        }
+        else if ( goal instanceof Variable )
+        {
+            ArrayList<Knowledge> list = new ArrayList<Knowledge>();
+            for (Functor functor : clauses.keySet()) {
+                list.addAll(clauses.get(functor));
+            }
+            return list;
+        }
+        else if ( goal instanceof ComplexTerm )
+        {
+            return clauses.get(((ComplexTerm)goal).getFunctor());
+        }
+        else
+        {
+            throw new RuntimeException("wtf?");
+        }
     }
 
     public void satisfy( Deque<Goal> goals )
@@ -79,56 +107,86 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         Goal goal = goals.pollFirst();
         while ( goal != null )
         {
-            boolean ruleMatched = false; // only use the first rule that matches
-            for ( Knowledge clause : getClauses(goal) )
+            boolean matchFound = false;
+            if ( goal instanceof Conjunction )
             {
-                if ( clause instanceof Fact )
+                Conjunction conjunction = (Conjunction) goal;
+                Deque<Goal> newGoals = new ArrayDeque<Goal>();
+                newGoals.add(conjunction.getLeft());
+                newGoals.add(conjunction.getRight());
+                satisfy(newGoals, parentBinding, true);
+            }
+            else if ( goal instanceof Disjunction )
+            {
+                Disjunction disjunction = (Disjunction) goal;
+                Deque<Goal> leftGoals = new ArrayDeque<Goal>();
+                leftGoals.add(disjunction.getLeft());
+                satisfy(leftGoals,parentBinding,true);
+                Deque<Goal> rightGoals = new ArrayDeque<Goal>();
+                rightGoals.add(disjunction.getRight());
+                satisfy(rightGoals,parentBinding,true);
+            }
+            else
+            {
+                boolean ruleMatched = false; // only use the first rule that matches
+                for ( Knowledge clause : getClauses(goal) )
                 {
-                    Fact fact = (Fact) clause;
-                    log.finest( "goal " + goal + " checking fact " + fact + " with " + parentBinding );
-                    UnifyResult unifyResult = unifier.unify( goal, (Term) fact, new RuleBinding(parentBinding) );
-                    if ( unifyResult.succeeded() )
+//                    System.out.println("goal is " + goal + " and remaining goals are " + goals);
+                    if ( clause instanceof Fact )
                     {
-                        log.info( "bbw when unify succeeded goals size is " + goals.size() + " with " + unifyResult.bindings() );
-                        if ( goals.isEmpty() )
-                        {   // since this is our last one, we have  match
-                            if ( ruleAsked )
-                            {
-                                ruleMatched = true;
+                        Fact fact = (Fact) clause;
+                        log.finest( "goal " + goal + " checking fact " + fact + " with " + parentBinding );
+                        UnifyResult unifyResult = unifier.unify( (Term)goal, fact.getTerm(), new RuleBinding(parentBinding) );
+                        if ( unifyResult.succeeded() )
+                        {
+                            matchFound = true;
+//                            System.out.println("fact " + fact + " matched goal " + goal);
+                            log.info( "bbw when unify succeeded goals size is " + goals.size() + " with " + unifyResult.bindings() );
+                            if ( goals.isEmpty() )
+                            {   // since this is our last one, we have  match
+//                                System.out.println("bottom of tree!");
+                                if ( ruleAsked )
+                                {
+                                    ruleMatched = true;
+                                }
+                                print( unifyResult.bindings() );
                             }
-                            print( unifyResult.bindings() );
-                        }
-                        else
-                        {
-                            satisfy( goals, unifyResult.bindings(), ruleAsked );
-                            return;
+                            else
+                            {
+                                System.out.println("let's go look at " + goals);
+                                satisfy( goals, unifyResult.bindings(), ruleAsked );
+                                return;
+                            }
                         }
                     }
-                }
-                else if ( ruleMatched & clause instanceof Rule )
-                {
-                    // safely ignore me
-                }
-                else if ( clause instanceof Rule )
-                {
-                    Rule rule = (Rule) clause;
-                    log.finest( "goal " + goal + " checking rule " + rule + " with " + parentBinding );
-                    RewrittenItems rewrittenItems = new RewrittenItems( goal, rule );
-                    UnifyResult unifyResult = rewrittenItems.getUnifyResult(new RuleBinding(parentBinding));
-                    if ( unifyResult.succeeded() )
+                    else if ( ruleMatched & clause instanceof Rule )
                     {
-                        log.fine( "rule match so far, checking rest of goals" );
-                        for ( Deque<Goal> newGoals : rewrittenItems.getSetsOfNewGoals() )
+                        // safely ignore me
+                    }
+                    else if ( clause instanceof Rule )
+                    {
+                        Rule rule = (Rule) clause;
+                        log.finest( "goal " + goal + " checking rule " + rule + " with " + parentBinding );
+                        UnifyResult unifyResult = new Unify().unify((Term)goal,rule.getHead().getTerm(),new RuleBinding(parentBinding));
+                        if ( unifyResult.succeeded() )
                         {
-                            log.finer( "trying to satisfy " + newGoals + " with " + unifyResult.bindings() );
-                            satisfy( newGoals, unifyResult.bindings(), true );
+//                            System.out.println("rule " + rule + " matched goal " + goal);
+                            log.fine("rule match so far, checking rest of goals");
+                            Deque<Goal> newGoals = new ArrayDeque<Goal>();
+                            newGoals.add(rule.getBody());
+                            satisfy(newGoals, unifyResult.bindings(), true);
                         }
                     }
+                    else
+                    {
+                        throw new RuntimeException( "Unknown clause type for " + clause.getClass().getName() );
+                    }
                 }
-                else
-                {
-                    throw new RuntimeException( "Unknown clause type for " + clause.getClass().getName() );
-                }
+            }
+            if ( !matchFound )
+            {
+                System.out.println("no match found for " + goal);
+                return;
             }
             goal = goals.pollFirst();
         }

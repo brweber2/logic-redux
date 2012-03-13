@@ -7,7 +7,6 @@ import com.brweber2.term.Term;
  * @author brweber2
  *         Copyright: 2012
  */
-public interface Goal extends RuleBody, Term
+public interface Goal
 {
-    Functor getFunctor();
 }
