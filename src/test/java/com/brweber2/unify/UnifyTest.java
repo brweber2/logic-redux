@@ -101,7 +101,7 @@ public class UnifyTest {
         Assert.assertFalse(resultOne.succeeded());
         Assert.assertEquals(resultOne.bindings().getVariables().size(), 0);
         Assert.assertFalse(resultOne.bindings().getVariables().contains(new AVariable("bar")));
-        Assert.assertEquals(resultOne.bindings().resolve(new AVariable("bar")), new AnAtom("quux") );
+        Assert.assertEquals(resultOne.bindings().resolve(new AVariable("bar")), null );
     }
     
     private void shouldAtomUnify( Term a, Term b )

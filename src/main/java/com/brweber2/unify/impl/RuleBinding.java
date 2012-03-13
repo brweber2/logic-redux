@@ -19,6 +19,7 @@ public class RuleBinding implements Binding
     private static Logger log = Logger.getLogger( RuleBinding.class.getName() );
 
     Binding parent = null;
+    Map<Variable,Variable> parentVariableMappings = new HashMap<Variable, Variable>();
     Map<Variable,String> vars = new HashMap<Variable, String>(  );
     Map<String,Term> values = new HashMap<String, Term>(  );
 
@@ -40,11 +41,8 @@ public class RuleBinding implements Binding
     public void shareValues( Variable a, Variable b )
     {
         String uuid = UUID.randomUUID().toString();
-        Term value = null;
-        if ( parent != null )
-        {
-            value = parent.resolve( a );
-        }
+        parentVariableMappings.put(b,a);
+        Term value = parent.resolve( a );
         vars.put( b, uuid );
         values.put( uuid, value );
     }
@@ -59,17 +57,11 @@ public class RuleBinding implements Binding
     public void instantiate( Variable a, Term b )
     {
         boolean unifies = true;
-        if ( parent.isBound( a ))
+        if ( parent.isBound( a ) )
         {
-            Unifier unifier = new Unify();
-            com.brweber2.unify.UnifyResult result = unifier.unify( parent.resolve( a ), b );
-            unifies = result.succeeded();
+            unifies = new Unify().unify( parent.resolve( a ), b ).succeeded();
         }
-        if (unifies )
-        {
-//            parent.instantiate( a, b );
-        }
-        else
+        if ( ! unifies )
         {
             throw new FailedToUnifyException( a + ":" + b );
         }
@@ -81,10 +73,6 @@ public class RuleBinding implements Binding
         {
             return values.get( vars.get( a ) );
         }
-        else if ( parent != null )
-        {
-            return parent.resolve( a );
-        }
         return null;
     }
 
@@ -92,8 +80,23 @@ public class RuleBinding implements Binding
     {
         for ( Variable variable : vars.keySet() )
         {
-            Term value = resolve( variable );
-            log.info( variable + ": " + value );
+            Variable varName = getVariableName(variable);
+            Term value = resolve(variable);
+            log.info( varName + ": " + value );
         }
+        if ( parent != null )
+        {
+            log.info("****** DUMPING PARENT *********");
+            parent.dumpVariables();
+        }
+    }
+
+    // todo may have to expose this on the interface to enable walking up the binding hierarchy
+    private Variable getVariableName(Variable variable) {
+        if ( parentVariableMappings.containsKey(variable) )
+        {
+            return parentVariableMappings.get(variable);
+        }
+        return variable;
     }
 }

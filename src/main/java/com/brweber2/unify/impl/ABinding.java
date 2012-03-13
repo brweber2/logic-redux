@@ -24,12 +24,6 @@ public class ABinding implements Binding
     {
     }
 
-    public ABinding(RuleBinding binding)
-    {
-        vars.putAll( binding.vars );
-        values.putAll( binding.values );
-    }
-
     public boolean isBound( Variable a )
     {
         return vars.containsKey( a );
@@ -44,9 +38,20 @@ public class ABinding implements Binding
     {
         String uuid = UUID.randomUUID().toString();
         Term value = null;
-        if ( isBound( a ) )
+        if ( isBound(a) && isBound(b) )
+        {
+            if ( !new Unify().unify(resolve(a),resolve(b)).succeeded() )
+            {
+                throw new FailedToUnifyException(a + "[" + resolve(a) + "] does not unify with " + b + "[" + resolve(b) + "]");
+            }
+        }
+        else if ( isBound(a) )
         {
             vars.put( b,vars.get( a ) ); // point b at a
+        }
+        else if ( isBound( b ) )
+        {
+            vars.put( a,vars.get( b ) ); // point a at b
         }
         else
         {

@@ -79,15 +79,14 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         Goal goal = goals.pollFirst();
         while ( goal != null )
         {
-            Binding bindingToUse = new RuleBinding( parentBinding );
             boolean ruleMatched = false; // only use the first rule that matches
             for ( Knowledge clause : getClauses(goal) )
             {
                 if ( clause instanceof Fact )
                 {
                     Fact fact = (Fact) clause;
-                    log.finest( "goal " + goal + " checking fact " + fact + " with " + bindingToUse );
-                    UnifyResult unifyResult = unifier.unify( goal, (Term) fact, new RuleBinding(bindingToUse) );
+                    log.finest( "goal " + goal + " checking fact " + fact + " with " + parentBinding );
+                    UnifyResult unifyResult = unifier.unify( goal, (Term) fact, new RuleBinding(parentBinding) );
                     if ( unifyResult.succeeded() )
                     {
                         log.info( "bbw when unify succeeded goals size is " + goals.size() + " with " + unifyResult.bindings() );
@@ -97,7 +96,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                             {
                                 ruleMatched = true;
                             }
-                            print( unifyResult );
+                            print( unifyResult.bindings() );
                         }
                         else
                         {
@@ -113,9 +112,9 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                 else if ( clause instanceof Rule )
                 {
                     Rule rule = (Rule) clause;
-                    log.finest( "goal " + goal + " checking rule " + rule + " with " + bindingToUse );
+                    log.finest( "goal " + goal + " checking rule " + rule + " with " + parentBinding );
                     RewrittenItems rewrittenItems = new RewrittenItems( goal, rule );
-                    UnifyResult unifyResult = rewrittenItems.getUnifyResult(bindingToUse);
+                    UnifyResult unifyResult = rewrittenItems.getUnifyResult(new RuleBinding(parentBinding));
                     if ( unifyResult.succeeded() )
                     {
                         log.fine( "rule match so far, checking rest of goals" );
@@ -133,42 +132,6 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
             }
             goal = goals.pollFirst();
         }
-    }
-    
-    public static Term rewriteGoal( Term goal, Binding binding )
-    {
-        if ( goal instanceof Constant )
-        {
-            return goal;
-        }
-        else if ( goal instanceof ComplexTerm )
-        {
-            ComplexTerm original = (ComplexTerm) goal;
-            List<Term> newTerms = new ArrayList<Term>(  );
-            for ( Term term : original.getTerms() )
-            {
-                newTerms.add( rewriteGoal( term, binding ) );
-            }
-            return new AComplexTerm( original.getFunctor().getFunctorString(), newTerms.toArray( new Term[newTerms.size()] ) );
-        }
-        else if ( goal instanceof Variable )
-        {
-            Variable var = (Variable) goal;
-            if ( binding.isBound( var ) )
-            {
-                return binding.resolve( var );
-            }
-            return var;
-        }
-        else
-        {
-            throw new RuntimeException( "What have you given me???" );
-        }
-    }
-    
-    public void print( UnifyResult unifyResult )
-    {
-        print( unifyResult.bindings() );
     }
     
     public void print( Binding binding )
