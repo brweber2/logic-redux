@@ -136,7 +136,16 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                     {
                         Fact fact = (Fact) clause;
                         log.finest( "goal " + goal + " checking fact " + fact + " with " + parentBinding );
-                        UnifyResult unifyResult = unifier.unify( (Term)goal, fact.getTerm(), new RuleBinding(parentBinding) );
+                        UnifyResult unifyResult;
+                        if ( parentBinding instanceof RuleBinding )
+                        {
+                            unifyResult = unifier.unify( (Term)goal, fact.getTerm(), new ABinding((RuleBinding)parentBinding) );
+                        }
+                        else
+                        {
+                            unifyResult = unifier.unify( (Term)goal, fact.getTerm(), new RuleBinding(parentBinding) );
+                        }
+//                        UnifyResult unifyResult = unifier.unify( (Term)goal, fact.getTerm(), new RuleBinding(parentBinding) );
                         System.out.println("    before binding: " + parentBinding);
                         if ( unifyResult.succeeded() )
                         {

@@ -23,7 +23,13 @@ public class ABinding implements Binding
     public ABinding()
     {
     }
-    
+
+    public ABinding(ABinding parent)
+    {
+        this.vars = parent.vars;
+        this.values = parent.values;
+    }
+
     public ABinding(RuleBinding parent)
     {
         this.vars = parent.vars;
