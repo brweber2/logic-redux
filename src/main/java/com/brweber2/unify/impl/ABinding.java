@@ -23,6 +23,12 @@ public class ABinding implements Binding
     public ABinding()
     {
     }
+    
+    public ABinding(RuleBinding parent)
+    {
+        this.vars = parent.vars;
+        this.values = parent.values;
+    }
 
     public boolean isBound( Variable a )
     {
@@ -90,5 +96,19 @@ public class ABinding implements Binding
             Term value = resolve( variable );
             log.info( variable + ": " + value );
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder str= new StringBuilder();
+        str.append("ABinding {");
+        for (Variable variable : vars.keySet()) {
+            str.append(variable);
+            str.append("=");
+            str.append(values.get(vars.get(variable)));
+            str.append(",");
+        }
+        str.append("}");
+        return str.toString();
     }
 }

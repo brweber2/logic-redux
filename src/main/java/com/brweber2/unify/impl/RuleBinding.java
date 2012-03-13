@@ -61,6 +61,10 @@ public class RuleBinding implements Binding
         {
             unifies = new Unify().unify( parent.resolve( a ), b ).succeeded();
         }
+        else
+        {
+            parent.instantiate(b,a);
+        }
         if ( ! unifies )
         {
             throw new FailedToUnifyException( a + ":" + b );
@@ -98,5 +102,22 @@ public class RuleBinding implements Binding
             return parentVariableMappings.get(variable);
         }
         return variable;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        str.append("RuleBinding{");
+        for ( Variable variable : vars.keySet() )
+        {
+            Variable varName = getVariableName(variable);
+            Term value = resolve(variable);
+            str.append( varName );
+            str.append("=");
+            str.append( value );
+            str.append(",");
+        }
+        str.append("}");
+        return str.toString();
     }
 }

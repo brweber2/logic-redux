@@ -131,14 +131,16 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                 boolean ruleMatched = false; // only use the first rule that matches
                 for ( Knowledge clause : getClauses(goal) )
                 {
-//                    System.out.println("goal is " + goal + " and remaining goals are " + goals);
+                    System.out.println("goal is " + goal + " and remaining goals are " + goals + " and checking clause " + clause);
                     if ( clause instanceof Fact )
                     {
                         Fact fact = (Fact) clause;
                         log.finest( "goal " + goal + " checking fact " + fact + " with " + parentBinding );
                         UnifyResult unifyResult = unifier.unify( (Term)goal, fact.getTerm(), new RuleBinding(parentBinding) );
+                        System.out.println("    before binding: " + parentBinding);
                         if ( unifyResult.succeeded() )
                         {
+                            System.out.println("    binding: " + unifyResult.bindings());
                             matchFound = true;
 //                            System.out.println("fact " + fact + " matched goal " + goal);
                             log.info( "bbw when unify succeeded goals size is " + goals.size() + " with " + unifyResult.bindings() );
@@ -154,8 +156,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                             else
                             {
                                 System.out.println("let's go look at " + goals);
-                                satisfy( goals, unifyResult.bindings(), ruleAsked );
-                                return;
+                                satisfy( goals, new ABinding((RuleBinding)unifyResult.bindings()), ruleAsked );
                             }
                         }
                     }
@@ -174,7 +175,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                             log.fine("rule match so far, checking rest of goals");
                             Deque<Goal> newGoals = new ArrayDeque<Goal>();
                             newGoals.add(rule.getBody());
-                            satisfy(newGoals, unifyResult.bindings(), true);
+                            satisfy(newGoals, new ABinding((RuleBinding)unifyResult.bindings()), true);
                         }
                     }
                     else
@@ -183,9 +184,10 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                     }
                 }
             }
-            if ( !matchFound )
+            System.out.println(goal + "? " + matchFound);
+            if ( ruleAsked && !matchFound )
             {
-                System.out.println("no match found for " + goal);
+//                System.out.println("no match found for " + goal);
                 return;
             }
             goal = goals.pollFirst();
