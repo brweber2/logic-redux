@@ -26,8 +26,8 @@ public class AComplexTerm implements ComplexTerm {
             {
                 if ( term == null )
                 {
-                    System.out.println("functor is " + functor);
-                    System.out.println("terms are " + Arrays.toString( terms ) );
+                    System.err.println("functor is " + functor);
+                    System.err.println("terms are " + Arrays.toString( terms ) );
                     RuntimeException e = new RuntimeException( );
                     e.printStackTrace();
                     System.exit( -1 );

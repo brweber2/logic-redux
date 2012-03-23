@@ -91,16 +91,6 @@ public class Unify implements Unifier {
         }
         else if ( a instanceof Variable )
         {
-//            boolean unifies;
-//            try
-//            {
-//                unificationResult.bindings().instantiate( (Variable) a, b );
-//                unifies = true;
-//            }
-//            catch ( FailedToUnifyException e )
-//            {
-//                unifies = false;
-//            }
             unificationResult.set( true, (Variable) a, b );
         }
         else if ( b instanceof Variable )

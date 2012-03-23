@@ -157,7 +157,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         {
             Fact fact = (Fact) clause;
             UnifyResult result = unifier.unify( fact.getTerm(), (Term) goal, binding );
-            System.err.println( "FACT RESULT: " + result + " for " + fact + " asked " + goal + " given " + binding );
+            log.info( "FACT RESULT: " + result + " for " + fact + " asked " + goal + " given " + binding );
             return new UnifyResultAndGoalList( result, new Goals( this ) );
         }
         else // if ( clause instanceof Rule )
@@ -166,7 +166,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
             Fact head = rule.getHead();
             log.finer( "time to satisfy rule " + goal + " with " + head + " given " + binding );
             UnifyResult headResult = ask( goal, head, binding );
-            System.err.println( "HEAD RESULT: " + headResult + " for " + head + " asked " + goal + " given " + binding );
+            log.info( "HEAD RESULT: " + headResult + " for " + head + " asked " + goal + " given " + binding );
             if ( headResult.succeeded() )
             {
                 log.fine( "head succeeded, time to check the body" );
@@ -197,7 +197,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
     {
         try
         {
-            log.info("yes");
+            System.out.println("yes");
             binding.dumpVariables();
             // todo add this back in...
 //            BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );

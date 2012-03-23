@@ -49,29 +49,6 @@ public class ABinding implements Binding
             vars.put( b, uuid );
             values.put( uuid, value );
         }
-//        String uuid = UUID.randomUUID().toString();
-//        Term value = null;
-//        if ( isBound(a) && isBound(b) )
-//        {
-//            if ( !new Unify().unify(resolve(a),resolve(b)).succeeded() )
-//            {
-//                throw new FailedToUnifyException(a + "[" + resolve(a) + "] does not unify with " + b + "[" + resolve(b) + "]");
-//            }
-//        }
-//        else if ( isBound(a) )
-//        {
-//            vars.put( b,vars.get( a ) ); // point b at a
-//        }
-//        else if ( isBound( b ) )
-//        {
-//            vars.put( a,vars.get( b ) ); // point a at b
-//        }
-//        else
-//        {
-//            vars.put( a, uuid );
-//            vars.put( b, uuid );
-//            values.put( uuid, value );
-//        }
     }
 
     public void instantiate( Term a, Variable b )
@@ -97,8 +74,8 @@ public class ABinding implements Binding
     
     public void instantiate( Variable a, Term b )
     {
+        // no need to ever call in this direction....
         System.err.println( "instantiating " + a + " to " + b );
-//        instantiate( b, a );
     }
 
     public Term resolve( Variable a )
@@ -125,7 +102,7 @@ public class ABinding implements Binding
         for ( Variable variable : vars.keySet() )
         {
             Term value = resolve( variable );
-            log.info( variable + ": " + value );
+            System.out.println( variable + ": " + value );
         }
     }
 
