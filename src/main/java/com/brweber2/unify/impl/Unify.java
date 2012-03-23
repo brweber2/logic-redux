@@ -89,7 +89,6 @@ public class Unify implements Unifier {
         {
             unificationResult.fail(a,b);
         }
-        System.err.println( "unification result: " + unificationResult );
     }
 
     private boolean unify( UnificationResult unificationResult, ComplexTerm a, ComplexTerm b )
