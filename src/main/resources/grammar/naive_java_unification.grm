@@ -1,0 +1,62 @@
+"Name"    = 'Naive Java Unification'
+"Author"  = 'Bryan Weber (brweber2)'
+"Version" = '1.0'
+"About"   = 'This is the grammar for naive java unification (a Prolog like grammar).'
+
+"Case Sensitive" = True
+"Start Symbol"   = <Statements>
+
+Comment Block @= { Nesting = All, Advance = Character }
+
+Comment Start = '/*'
+Comment End   = '*/'
+
+Comment Line  = '//'
+
+{AtomContent} = {Printable} - ['']
+              
+{IdConent} = {AlphaNumeric} + ['_']
+
+Id            = {Letter}{IdConent}*
+
+! Atom string allows only single quotes
+
+AtomLiteral = ''   {AtomContent}* ''
+
+NumberLiteral = {Digit}+('.'{Digit}+)?
+
+<Statements>    ::=   <Statement> <Statements>
+                    | <Statement>
+
+<Statement>     ::=   <Term> '.'
+                    | <Rule> '.'
+
+<Term>          ::=   <Atom>
+                    | <Number>
+                    | <Variable>
+                    | <ComplexTerm>
+
+<Rule>          ::=   <RuleHead> ':-' <RuleBody>
+
+<RuleHead>      ::=   <Term>
+
+<RuleBody>      ::=   <RuleAnd>
+                    | <RuleOr>
+                    | <Term>
+
+<RuleAnd>       ::=   <Term> ',' <RuleBody>
+                 
+<RuleOr>        ::=   <Term> ';' <RuleBody>
+
+<Number>        ::=   NumberLiteral
+
+<Atom>          ::=   Id
+                    | AtomLiteral
+
+<Variable>      ::=   '@' Id
+
+<ComplexTerm>   ::=  Id '(' ')'  
+                 | Id '(' <TermList> ')' 
+                 
+<TermList>      ::= <Term> ',' <TermList>
+                 | <Term>           
