@@ -6,7 +6,6 @@ import com.brweber2.term.impl.AVariable;
 import com.brweber2.term.impl.AnAtom;
 import com.brweber2.term.impl.AnNumeric;
 import com.brweber2.unify.impl.ABinding;
-import com.brweber2.unify.impl.RuleBinding;
 import com.brweber2.unify.impl.Unify;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -43,21 +42,20 @@ public class UnifyTest {
     public void testVariableAtomUnify()
     {
         shouldVariableAtomUnify(new AnAtom("foo"), new AVariable("bar"));
-        shouldVariableAtomUnify(new AVariable("bar"), new AnAtom("foo"));
+        shouldVariableAtomUnify2( new AVariable( "bar" ), new AnAtom( "foo" ) );
         ABinding binding = new ABinding();
-        binding.instantiate(new AVariable("bar"),new AnAtom("foo"));
-        shouldVariableAtomUnify(new AVariable("bar"), new AnAtom("foo"), binding);
+        binding.instantiate(new AnAtom("foo"), new AVariable("bar"));
+        shouldVariableAtomUnify(new AnAtom("foo"), new AVariable("bar"), binding);
     }
 
     @Test
     public void testVariableAtomNotUnify()
     {
         shouldVariableAtomUnify( new AnAtom("foo"), new AVariable("bar") );
-        shouldVariableAtomUnify( new AVariable("bar"), new AnAtom("foo") );
+        shouldVariableAtomUnify2( new AVariable( "bar" ), new AnAtom( "foo" ) );
         Binding binding = new ABinding();
         binding.instantiate(new AnAtom("quux"),new AVariable("bar"));
-        RuleBinding ruleBinding = new RuleBinding( binding );
-        shouldVariableAtomNotUnify(new AVariable("bar"), new AnAtom("foo"), ruleBinding);
+        shouldVariableAtomNotUnify(new AnAtom("foo"), new AVariable("bar"), binding);
     }
 
     private void shouldComplexTermUnify( Term a, Term b )
@@ -79,13 +77,6 @@ public class UnifyTest {
         shouldVariableAtomUnify(a, b, new ABinding());
     }
 
-    private void shouldVariableAtomUnify( Term a, Term b, RuleBinding binding )
-    {
-        UnifyResult resultOne = new Unify().unify( a, b, binding);
-        Assert.assertTrue(resultOne.succeeded());
-        Assert.assertEquals(resultOne.bindings().getVariables().size(), 0);
-    }
-
     private void shouldVariableAtomUnify( Term a, Term b, ABinding binding )
     {
         UnifyResult resultOne = new Unify().unify( a, b, binding );
@@ -95,13 +86,25 @@ public class UnifyTest {
         Assert.assertEquals(resultOne.bindings().resolve(new AVariable("bar")), new AnAtom("foo") );
     }
 
+    private void shouldVariableAtomUnify2( Term a, Term b )
+    {
+        shouldVariableAtomUnify2( a, b, new ABinding() );
+    }
+
+    private void shouldVariableAtomUnify2( Term a, Term b, ABinding binding )
+    {
+        UnifyResult resultOne = new Unify().unify( a, b, binding );
+        Assert.assertTrue(resultOne.succeeded());
+        Assert.assertEquals(resultOne.bindings().getVariables().size(), 0);
+    }
+
     private void shouldVariableAtomNotUnify( Term a, Term b, Binding binding )
     {
         UnifyResult resultOne = new Unify().unify( a, b, binding );
         Assert.assertFalse(resultOne.succeeded());
-        Assert.assertEquals(resultOne.bindings().getVariables().size(), 0);
-        Assert.assertFalse(resultOne.bindings().getVariables().contains(new AVariable("bar")));
-        Assert.assertEquals(resultOne.bindings().resolve(new AVariable("bar")), null );
+        Assert.assertEquals(resultOne.bindings().getVariables().size(), 1);
+        Assert.assertTrue(resultOne.bindings().getVariables().contains(new AVariable("bar")));
+        Assert.assertEquals(resultOne.bindings().resolve(new AVariable("bar")), new AnAtom( "quux" ) );
     }
     
     private void shouldAtomUnify( Term a, Term b )
