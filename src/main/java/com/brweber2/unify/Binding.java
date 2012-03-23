@@ -3,6 +3,7 @@ package com.brweber2.unify;
 import com.brweber2.term.Term;
 import com.brweber2.term.Variable;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -17,6 +18,9 @@ public interface Binding {
     void instantiate(Variable a, Term b);
     void instantiate(Term a, Variable b);
     Term resolve(Variable a);
+
+    Map<Variable,String>  getVars();
+    Map<String,Term> getValues();
 
     void dumpVariables();
 }

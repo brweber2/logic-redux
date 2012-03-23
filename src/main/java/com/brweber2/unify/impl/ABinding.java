@@ -24,16 +24,10 @@ public class ABinding implements Binding
     {
     }
 
-    public ABinding(ABinding parent)
+    public ABinding(Binding parent)
     {
-        this.vars = parent.vars;
-        this.values = parent.values;
-    }
-
-    public ABinding(RuleBinding parent)
-    {
-        this.vars = parent.vars;
-        this.values = parent.values;
+        this.vars = parent.getVars();
+        this.values = parent.getValues();
     }
 
     public boolean isBound( Variable a )
@@ -76,6 +70,13 @@ public class ABinding implements Binding
 
     public void instantiate( Term a, Variable b )
     {
+        if ( isBound( b ) )
+        {
+            if ( !new Unify().unify(a,resolve(b)).succeeded() )
+            {
+                throw new FailedToUnifyException(a + "[" + a + "] does not unify with " + b + "[" + resolve(b) + "]");
+            }
+        }
         String uuid = UUID.randomUUID().toString();
         vars.put( b, uuid );
         values.put( uuid, a );
@@ -83,6 +84,7 @@ public class ABinding implements Binding
     
     public void instantiate( Variable a, Term b )
     {
+        System.err.println( "instantiating " + a + " to " + b );
         instantiate( b, a );
     }
 
@@ -93,6 +95,16 @@ public class ABinding implements Binding
             return values.get( vars.get( a ) );
         }
         return null;
+    }
+
+    public Map<Variable, String> getVars()
+    {
+        return vars;
+    }
+
+    public Map<String, Term> getValues()
+    {
+        return values;
     }
 
     public void dumpVariables()

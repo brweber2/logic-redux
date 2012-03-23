@@ -6,7 +6,6 @@ package com.brweber2.unify.impl;
 import com.brweber2.term.Term;
 import com.brweber2.term.Variable;
 import com.brweber2.unify.Binding;
-import com.brweber2.unify.Unifier;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,6 +77,16 @@ public class RuleBinding implements Binding
             return values.get( vars.get( a ) );
         }
         return null;
+    }
+
+    public Map<Variable, String> getVars()
+    {
+        return vars;
+    }
+
+    public Map<String, Term> getValues()
+    {
+        return values;
     }
 
     public void dumpVariables()

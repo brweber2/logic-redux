@@ -19,11 +19,20 @@ public class UnifyResult implements UnificationResult {
     private Term left;
     private Term right;
 
-    public UnifyResult() {
-        this.bindings = new ABinding();
+    public UnifyResult(Term a, Term b) {
+        this(a,b,new ABinding());
     }
 
-    public UnifyResult(Binding bindings) {
+    public UnifyResult(Term a, Term b, Binding bindings) {
+        this.left = a;
+        this.right = b;
+        this.bindings = bindings;
+    }
+
+    public UnifyResult(com.brweber2.unify.UnifyResult result, Binding bindings) {
+        this.left = result.getLeft();
+        this.right = result.getRight();
+        this.successful = result.succeeded();
         this.bindings = bindings;
     }
 
@@ -79,4 +88,14 @@ public class UnifyResult implements UnificationResult {
         return right;
     }
 
+    @Override
+    public String toString()
+    {
+        return "UnifyResult{" +
+                "successful=" + successful +
+                ", bindings=" + bindings +
+                ", left=" + left +
+                ", right=" + right +
+                '}';
+    }
 }

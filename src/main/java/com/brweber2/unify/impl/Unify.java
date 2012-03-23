@@ -18,13 +18,13 @@ import java.util.List;
 public class Unify implements Unifier {
 
     public UnifyResult unify(Term a, Term b) {
-        UnifyResult result = new UnifyResult();
+        UnifyResult result = new UnifyResult(a,b);
         unify( result, a, b );
         return result;
     }
 
     public UnifyResult unify(Term a, Term b, Binding binding ) {
-        UnifyResult result = new UnifyResult(binding);
+        UnifyResult result = new UnifyResult(a,b,binding);
         unify( result, a, b );
         return result;
     }
@@ -41,8 +41,17 @@ public class Unify implements Unifier {
         }
         else if ( a instanceof Variable && b instanceof Variable )
         {
-            unificationResult.bindings().shareValues((Variable)a,(Variable)b);
-            unificationResult.set( true );
+            boolean unifies;
+            try
+            {
+                unificationResult.bindings().shareValues((Variable)a,(Variable)b);
+                unifies = true;
+            }
+            catch ( FailedToUnifyException e )
+            {
+                unifies = false;
+            }
+            unificationResult.set( unifies, (Variable) a, b );
         }
         else if ( a instanceof Variable )
         {
@@ -60,8 +69,17 @@ public class Unify implements Unifier {
         }
         else if ( b instanceof Variable )
         {
-            unificationResult.bindings().instantiate(a,(Variable)b);
-            unificationResult.set( true );
+            boolean unifies;
+            try
+            {
+                unificationResult.bindings().instantiate(a,(Variable)b);
+                unifies = true;
+            }
+            catch ( FailedToUnifyException e )
+            {
+                unifies = false;
+            }
+            unificationResult.set( unifies, (Variable) b, a );
         }
         else if ( a instanceof ComplexTerm && b instanceof ComplexTerm )
         {
@@ -71,6 +89,7 @@ public class Unify implements Unifier {
         {
             unificationResult.fail(a,b);
         }
+        System.err.println( "unification result: " + unificationResult );
     }
 
     private boolean unify( UnificationResult unificationResult, ComplexTerm a, ComplexTerm b )
