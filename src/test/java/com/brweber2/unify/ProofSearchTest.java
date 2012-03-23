@@ -35,9 +35,9 @@ public class ProofSearchTest
                     new AComplexTerm( "related", new AVariable( "X" ), new AVariable( "Y" ) ),
                         new AComplexTerm( "parent", new AVariable( "X" ), new AVariable( "Y" ) ) ) );
             kb.assertKnowledge( new ARule(
-                    new AComplexTerm( "related", new AVariable( "X" ), new AVariable( "Y" ) ),  new AConjunction(
-                        new AComplexTerm( "parent", new AVariable( "X" ), new AVariable( "Z" ) ),
-                        new AComplexTerm( "related", new AVariable( "Z" ), new AVariable( "Y" ) ) ) ) );
+                    new AComplexTerm( "related", new AVariable( "Y" ), new AVariable( "X" ) ),  new AConjunction(
+                        new AComplexTerm( "parent", new AVariable( "Y" ), new AVariable( "Z" ) ),
+                        new AComplexTerm( "related", new AVariable( "Z" ), new AVariable( "X" ) ) ) ) );
 
 //        kb.pose( new AComplexTerm("parent", new AnAtom( "Tim" ), new AVariable( "Y" ) ) );
 //        kb.pose( new AComplexTerm("related", new AnAtom( "Ralph" ), new AVariable( "Y" ) ) );

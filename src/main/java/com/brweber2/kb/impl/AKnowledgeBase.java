@@ -97,14 +97,14 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         while ( goalList.haveMore() )
         {
             Goal goal = goalList.getNext();
-            log.info("Goal: " + goal + " with binding: " + goalsBinding);
+            log.info( "Goal: " + goal + " with binding: " + goalsBinding );
             Clauses clauses = goalList.getNextClause(goal);
 
             while ( clauses.hasMore() )
             {
                 Knowledge clause = clauses.getNext();
                 Binding clauseBinding = new ABinding( goalsBinding );
-                log.info("Clause: " + clause + " with binding: " + clauseBinding);
+                log.info( "Clause: " + clause + " with binding: " + clauseBinding );
                 UnifyResultAndGoalList unifyResultAndGoalList = satisfy( goal, clause, clauseBinding );
                 UnifyResult unifyResult = unifyResultAndGoalList.getUnifyResult();
                 Goals nextGoals = unifyResultAndGoalList.getGoals();
@@ -152,7 +152,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
     
     private UnifyResultAndGoalList satisfy( Goal goal, Knowledge clause, Binding binding )
     {
-        log.fine("time to satisfy " + goal + " with " + clause + " given " + binding);
+        log.fine( "time to satisfy " + goal + " with " + clause + " given " + binding );
         if ( clause instanceof Fact )
         {
             Fact fact = (Fact) clause;
@@ -164,7 +164,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         {
             Rule rule = (Rule) clause;
             Fact head = rule.getHead();
-            log.finer("time to satisfy rule " + goal + " with " + head + " given " + binding);
+            log.finer( "time to satisfy rule " + goal + " with " + head + " given " + binding );
             UnifyResult headResult = ask( goal, head, binding );
             System.err.println( "HEAD RESULT: " + headResult + " for " + head + " asked " + goal + " given " + binding );
             if ( headResult.succeeded() )
@@ -182,7 +182,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         log.finer( "goal " + goal + " head " + head + " binding: " + binding );
         Binding ruleBinding = new ABinding( binding );
         log.finer( "bbw trying to unify: goal " + goal + " head " + head + " ruleBinding: " + ruleBinding );
-        UnifyResult result = unifier.unify( (Term) goal, (Term) head, ruleBinding );
+        UnifyResult result = unifier.unifyRuleHead( (Term) goal, (Term) head, ruleBinding );
         log.finer( "goal " + goal + " head " + head + " after ruleBinding: " + ruleBinding );
         if ( result.succeeded() )
         {
@@ -192,7 +192,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         }
         return result;
     }
-    
+
     public void print( Binding binding )
     {
         try

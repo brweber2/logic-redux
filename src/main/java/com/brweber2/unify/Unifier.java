@@ -7,6 +7,7 @@ import com.brweber2.term.Term;
  *         Copyright: 2012
  */
 public interface Unifier {
+    UnifyResult unifyRuleHead( Term a, Term b, Binding binding );
     UnifyResult unify( Term a, Term b, Binding binding );
     UnifyResult unify( Term a, Term b );
 }

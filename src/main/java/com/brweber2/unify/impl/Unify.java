@@ -5,10 +5,12 @@ import com.brweber2.term.ComplexTerm;
 import com.brweber2.term.Numeric;
 import com.brweber2.term.Term;
 import com.brweber2.term.Variable;
+import com.brweber2.term.impl.AComplexTerm;
 import com.brweber2.unify.Binding;
 import com.brweber2.unify.UnificationResult;
 import com.brweber2.unify.Unifier;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,6 +23,40 @@ public class Unify implements Unifier {
         UnifyResult result = new UnifyResult(a,b);
         unify( result, a, b );
         return result;
+    }
+
+    public com.brweber2.unify.UnifyResult unifyRuleHead( Term a, Term b, Binding binding )
+    {
+        // replace any variables in b with the value from binding
+        Term modifiedB = replaceVariables(b,binding);
+        return unify( modifiedB, a, new ABinding() );
+    }
+
+    private Term replaceVariables( Term b, Binding binding )
+    {
+        if ( b instanceof Variable )
+        {
+            Variable varB = (Variable) b;
+            if ( binding.isBound( varB ) && binding.resolve( varB ) != null )
+            {
+                return binding.resolve( varB );
+            }
+            return b;
+        }
+        else if ( b instanceof ComplexTerm )
+        {
+            ComplexTerm ct = (ComplexTerm) b;
+            List<Term> newTerms = new ArrayList<Term>();
+            for ( Term term : ( (ComplexTerm) b ).getTerms() )
+            {
+                newTerms.add( replaceVariables( term, binding ) );
+            }
+            return new AComplexTerm( ct.getFunctor().getFunctorString(), newTerms.toArray( new Term[newTerms.size()] ) );
+        }
+        else
+        {
+            return b;
+        }
     }
 
     public UnifyResult unify(Term a, Term b, Binding binding ) {
@@ -55,17 +91,17 @@ public class Unify implements Unifier {
         }
         else if ( a instanceof Variable )
         {
-            boolean unifies;
-            try
-            {
-                unificationResult.bindings().instantiate( (Variable) a, b );
-                unifies = true;
-            }
-            catch ( FailedToUnifyException e )
-            {
-                unifies = false;
-            }
-            unificationResult.set( unifies, (Variable) a, b );
+//            boolean unifies;
+//            try
+//            {
+//                unificationResult.bindings().instantiate( (Variable) a, b );
+//                unifies = true;
+//            }
+//            catch ( FailedToUnifyException e )
+//            {
+//                unifies = false;
+//            }
+            unificationResult.set( true, (Variable) a, b );
         }
         else if ( b instanceof Variable )
         {

@@ -24,7 +24,7 @@ public class RuleBinding implements Binding
 
     public RuleBinding( Binding parent )
     {
-        this.parent = parent;
+        this.parent = new ABinding( parent );
     }
 
     public boolean isBound( Variable a )
@@ -39,6 +39,17 @@ public class RuleBinding implements Binding
 
     public void shareValues( Variable a, Variable b )
     {
+        if ( isBound( b ) )
+        {
+            Term value = parent.resolve( a );
+            if ( value != null )
+            {
+                if ( !new Unify().unify( resolve( b ), value ).succeeded() )
+                {
+                    throw new FailedToUnifyException( a + ":" + b );
+                }
+            }
+        }
         String uuid = UUID.randomUUID().toString();
         parentVariableMappings.put(b,a);
         Term value = parent.resolve( a );
@@ -48,6 +59,15 @@ public class RuleBinding implements Binding
 
     public void instantiate( Term a, Variable b )
     {
+        System.err.println( "can we set " + b + " to " + a + "?");
+        if ( isBound( b ) )
+        {
+            if ( !new Unify().unify( resolve( b ), a ).succeeded() )
+            {
+                throw new FailedToUnifyException( a + ":" + b );
+            }
+        }
+        System.err.println( "instantiating " + b + " to " + a );
         String uuid = UUID.randomUUID().toString();
         vars.put( b, uuid );
         values.put( uuid, a );
@@ -64,6 +84,7 @@ public class RuleBinding implements Binding
         {
             parent.instantiate(b,a);
         }
+        System.err.println( "instantiating " + a + " to " + b + "??? " + unifies );
         if ( ! unifies )
         {
             throw new FailedToUnifyException( a + ":" + b );

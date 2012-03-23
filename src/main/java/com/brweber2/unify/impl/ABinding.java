@@ -42,50 +42,63 @@ public class ABinding implements Binding
 
     public void shareValues( Variable a, Variable b )
     {
-        String uuid = UUID.randomUUID().toString();
-        Term value = null;
-        if ( isBound(a) && isBound(b) )
+        if ( !isBound( b ) )
         {
-            if ( !new Unify().unify(resolve(a),resolve(b)).succeeded() )
-            {
-                throw new FailedToUnifyException(a + "[" + resolve(a) + "] does not unify with " + b + "[" + resolve(b) + "]");
-            }
-        }
-        else if ( isBound(a) )
-        {
-            vars.put( b,vars.get( a ) ); // point b at a
-        }
-        else if ( isBound( b ) )
-        {
-            vars.put( a,vars.get( b ) ); // point a at b
-        }
-        else
-        {
-            vars.put( a, uuid );
+            Term value = null;
+            String uuid = UUID.randomUUID().toString();
             vars.put( b, uuid );
             values.put( uuid, value );
         }
-
+//        String uuid = UUID.randomUUID().toString();
+//        Term value = null;
+//        if ( isBound(a) && isBound(b) )
+//        {
+//            if ( !new Unify().unify(resolve(a),resolve(b)).succeeded() )
+//            {
+//                throw new FailedToUnifyException(a + "[" + resolve(a) + "] does not unify with " + b + "[" + resolve(b) + "]");
+//            }
+//        }
+//        else if ( isBound(a) )
+//        {
+//            vars.put( b,vars.get( a ) ); // point b at a
+//        }
+//        else if ( isBound( b ) )
+//        {
+//            vars.put( a,vars.get( b ) ); // point a at b
+//        }
+//        else
+//        {
+//            vars.put( a, uuid );
+//            vars.put( b, uuid );
+//            values.put( uuid, value );
+//        }
     }
 
     public void instantiate( Term a, Variable b )
     {
-        if ( isBound( b ) )
+        if ( isBound( b ) && resolve( b ) != null )
         {
             if ( !new Unify().unify(a,resolve(b)).succeeded() )
             {
                 throw new FailedToUnifyException(a + "[" + a + "] does not unify with " + b + "[" + resolve(b) + "]");
             }
         }
-        String uuid = UUID.randomUUID().toString();
-        vars.put( b, uuid );
-        values.put( uuid, a );
+        else if ( isBound( b ) )
+        {
+            values.put( vars.get( b ), a );
+        }
+        else
+        {
+            String uuid = UUID.randomUUID().toString();
+            vars.put( b, uuid );
+            values.put( uuid, a );
+        }
     }
     
     public void instantiate( Variable a, Term b )
     {
         System.err.println( "instantiating " + a + " to " + b );
-        instantiate( b, a );
+//        instantiate( b, a );
     }
 
     public Term resolve( Variable a )
