@@ -13,6 +13,7 @@ import com.brweber2.term.impl.AVariable;
 import com.brweber2.term.impl.AnAtom;
 import com.brweber2.unify.impl.ABinding;
 import com.brweber2.unify.impl.Unify;
+import jline.ConsoleReader;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -22,7 +23,7 @@ public class ProofSearchTest
     public void testProofSearch()
     {
         try {
-            KnowledgeBase kb = new AKnowledgeBase();
+            KnowledgeBase kb = new AKnowledgeBase(new ConsoleReader(  ));
 
             kb.assertKnowledge( new AComplexTerm( "parent", new AnAtom( "Tim" ), new AnAtom( "Gary" ) ) );
             kb.assertKnowledge( new AComplexTerm( "parent", new AnAtom( "Tim" ), new AnAtom( "Melissa" ) ) );

@@ -17,7 +17,9 @@ import com.brweber2.unify.Unifier;
 import com.brweber2.unify.UnifyResult;
 import com.brweber2.unify.impl.ABinding;
 import com.brweber2.unify.impl.Unify;
+import jline.ConsoleReader;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,11 +33,18 @@ import java.util.logging.Logger;
 public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
 
     public static boolean TRACE = false;
+    public static boolean PROMPT = true;
 
     Map<Functor,Collection<Knowledge>> clauses = new HashMap<Functor,Collection<Knowledge>>();
     Unifier unifier = new Unify();
     Logger log = Logger.getLogger( AKnowledgeBase.class.getName() );
-    
+    ConsoleReader consoleReader;
+
+    public AKnowledgeBase( ConsoleReader consoleReader )
+    {
+        this.consoleReader = consoleReader;
+    }
+
     public void assertKnowledge( Knowledge knowledge )
     {
         Functor functor = knowledge.getFunctor();
@@ -49,7 +58,14 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
     public void pose( Goal query )
     {
         log.fine( "asking " + query );
+        try
+        {
         satisfy( new Goals( this, query ) );
+        }
+        catch ( ShortCircuitException e )
+        {
+            // ok
+        }
     }
 
     public Collection<Knowledge> getClauses( Goal goal )
@@ -213,17 +229,16 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         {
             System.out.println("yes");
             binding.dumpVariables();
-            // todo add this back in...
-//            BufferedReader br = new BufferedReader( new InputStreamReader( System.in ) );
-//            String line = br.readLine();
-//            if ( !";".equals( line.trim() ) )
-//            {
-//                throw new ShortCircuitException();
-//            }
-//        }
-//        catch ( IOException e )
+            if ( PROMPT )
+            {
+                String line = consoleReader.readLine();
+                if ( !";".equals( line.trim() ) )
+                {
+                    throw new ShortCircuitException();
+                }
+            }
         }
-        catch ( Exception e )
+        catch ( IOException e )
         {
             throw new RuntimeException( "Unable to read input from the user.", e );
         }

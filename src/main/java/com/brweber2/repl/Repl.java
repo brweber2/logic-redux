@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 public class Repl {
     private static Logger log = Logger.getLogger(Repl.class.getName());
 
-    private static final KnowledgeBase kb = new AKnowledgeBase();
+    private static KnowledgeBase kb;
     private static final CompileGrammar compiler = new CompileGrammar();
     private static MODE mode = MODE.ASK;
 
@@ -34,6 +34,7 @@ public class Repl {
     {
         // todo load any knowledge base files passed in with -f flag
         ConsoleReader in = new ConsoleReader();
+        kb  = new AKnowledgeBase(in);
         boolean done = false;
         while ( !done )
         {
@@ -95,6 +96,16 @@ public class Repl {
         }
     }
 
+    private static boolean togglePrompt( Object o )
+    {
+        if ( o instanceof ComplexTerm )
+        {
+            ComplexTerm ct = (ComplexTerm) o;
+            return ct.getFunctor().getFunctorString().equals( "prompt" ) && ct.getArity() == 0;
+        }
+        return false;
+    }
+
     private static boolean toggleTrace( Object o )
     {
         if ( o instanceof ComplexTerm )
@@ -126,7 +137,12 @@ public class Repl {
     
     private static void evalOne( Object s )
     {
-        if ( toggleTrace( s ) )
+        if ( togglePrompt( s ) )
+        {
+            AKnowledgeBase.PROMPT = !AKnowledgeBase.PROMPT;
+            System.out.println("Prompt is " + AKnowledgeBase.PROMPT + ".");
+        }
+        else if ( toggleTrace( s ) )
         {
             AKnowledgeBase.TRACE = !AKnowledgeBase.TRACE;
             System.out.println("Tracing is " + AKnowledgeBase.TRACE + ".");
@@ -181,7 +197,9 @@ public class Repl {
 
     private static String read(ConsoleReader in) throws IOException
     {
-        return in.readLine(getPrompt());
+        String r = in.readLine(getPrompt());
+        in.setDefaultPrompt( "" );
+        return r;
     }
 
     private static boolean done( String read )
