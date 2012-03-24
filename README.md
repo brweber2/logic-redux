@@ -51,6 +51,10 @@ A Prolog like language that runs on the JVM.
 * This toggles you back and forth between assert mode and query mode.
 * Assert mode has '!-' as its prompt and query mode uses '?-' as its prompt.
 
+### trace().
+
+* Toggles tracing on/off.
+
 ### exit, quit or halt
 
 * Exits the REPL
