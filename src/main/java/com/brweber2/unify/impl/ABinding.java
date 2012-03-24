@@ -89,12 +89,12 @@ public class ABinding implements Binding
 
     public Map<Variable, String> getVars()
     {
-        return vars;
+        return new HashMap<Variable, String>( vars );
     }
 
     public Map<String, Term> getValues()
     {
-        return values;
+        return new HashMap<String, Term>( values );
     }
 
     public void dumpVariables()

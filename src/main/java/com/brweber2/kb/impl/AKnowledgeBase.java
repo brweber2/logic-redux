@@ -118,7 +118,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
             {
                 Knowledge clause = clauses.getNext();
                 Binding clauseBinding = new ABinding( goalsBinding );
-                trace( "Clause: " + clause + " with binding: " + clauseBinding );
+                trace( "Clause: " + clause + " with binding: " + clauseBinding + " \n\tfrom " + goalsBinding);
                 UnifyResultAndGoalList unifyResultAndGoalList = satisfy( goal, clause, clauseBinding );
                 UnifyResult unifyResult = unifyResultAndGoalList.getUnifyResult();
                 Goals nextGoals = unifyResultAndGoalList.getGoals();
