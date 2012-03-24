@@ -4,5 +4,5 @@ bar(ghi).
 bar(jkl).
 quux.
 
-baz(X) :- quux; bar(X).
+baz(@X) :- quux; bar(@X).
 
