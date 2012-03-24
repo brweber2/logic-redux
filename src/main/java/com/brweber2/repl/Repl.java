@@ -95,6 +95,16 @@ public class Repl {
         }
     }
 
+    private static boolean toggleTrace( Object o )
+    {
+        if ( o instanceof ComplexTerm )
+        {
+            ComplexTerm ct = (ComplexTerm) o;
+            return ct.getFunctor().getFunctorString().equals( "trace" ) && ct.getArity() == 0;
+        }
+        return false;
+    }
+
     private static boolean switchMode( Object question )
     {
         if ( question instanceof ComplexTerm )
@@ -107,7 +117,6 @@ public class Repl {
 
     private static void eval( String read )
     {
-        // parse
         List s = parseString( read );
         for ( Object o : s )
         {
@@ -117,8 +126,12 @@ public class Repl {
     
     private static void evalOne( Object s )
     {
-        // todo add toggle trace...
-        if ( switchMode( s ) )
+        if ( toggleTrace( s ) )
+        {
+            AKnowledgeBase.TRACE = !AKnowledgeBase.TRACE;
+            System.out.println("Tracing is " + AKnowledgeBase.TRACE + ".");
+        }
+        else if ( switchMode( s ) )
         {
             switch ( mode )
             {
@@ -144,7 +157,6 @@ public class Repl {
         {
             switch ( mode )
             {
-
                 case ADD:
                     kb.assertKnowledge( (Knowledge) s );
                     break;
