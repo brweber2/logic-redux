@@ -55,6 +55,10 @@ A Prolog like language that runs on the JVM.
 
 * Toggles tracing on/off.
 
+### prompt().
+
+* Toggles prompt for more results on/off.  Use ';' to get additional results when prompted.
+
 ### exit, quit or halt
 
 * Exits the REPL
