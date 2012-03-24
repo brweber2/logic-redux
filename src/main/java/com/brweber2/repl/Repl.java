@@ -93,14 +93,8 @@ public class Repl {
             {
                 throw new RuntimeException( "No such file: " + file );
             }
-            GOLDParser parser = compiler.parser();
             FileReader reader = new FileReader( f );
-            if ( !parser.parseSourceStatements( reader ) )
-            {
-                throw new RuntimeException( "Unable to parse file " + file );
-            }
-            // todo figure out how to parse the file and get the terms and rules...
-            return null;
+            return CompileGrammar.parse( reader );
         }
         catch ( FileNotFoundException e )
         {

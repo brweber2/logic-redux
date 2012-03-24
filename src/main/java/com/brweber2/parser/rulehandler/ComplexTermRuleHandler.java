@@ -31,8 +31,11 @@ public class ComplexTermRuleHandler extends Reduction
             } else if (reduction.size() > 3 ) {
                 id = reduction.get( 0 ).asString();
                 termList = reduction.get( 2 ).asReduction();
-            } else {
-                parser.raiseParserException("wrong number of args");
+            } else if ( reduction.size() == 1) {
+                id = reduction.get( 0 ).asString();
+            }
+            else {
+                parser.raiseParserException("wrong number of args " + reduction.size());
             }
         } else {
             parser.raiseParserException("no reduction");

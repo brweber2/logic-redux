@@ -19,9 +19,10 @@ public class StatementRuleHandler extends Reduction
     {
         Reduction reduction = parser.getCurrentReduction();
         if (reduction != null) {
-            if (reduction.size() == 2) {
+            if (reduction.size() == 1 || reduction.size() == 2) {
                 ruleOrTerm = reduction.get( 0 ).asReduction();
             } else {
+                System.err.println( "reduction in error: " + reduction + " with size " + reduction.size() );
                 parser.raiseParserException("wrong number of args");
             }
         } else {

@@ -7,6 +7,11 @@ import com.creativewidgetworks.goldparser.engine.ParserException;
 import com.creativewidgetworks.goldparser.engine.Reduction;
 import com.creativewidgetworks.goldparser.parser.GOLDParser;
 import com.creativewidgetworks.goldparser.parser.ProcessRule;
+import com.creativewidgetworks.goldparser.parser.Variable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @ProcessRule(rule={"<Statements> ::= <Statement> <Statements>",
 "<Statements> ::= <Statement>"})
@@ -15,6 +20,8 @@ public class StatementsRuleHandler extends Reduction
 {
     private Reduction statement;
     private Reduction statements = null;
+    
+    private List code = new ArrayList();
 
     public StatementsRuleHandler()
     {
@@ -32,7 +39,7 @@ public class StatementsRuleHandler extends Reduction
                     statements = reduction.get( 1 ).asReduction();
                 }
             }else {
-                parser.raiseParserException("wrong number of args");
+                parser.raiseParserException("wrong number of args " + reduction.size());
             }
         } else {
             parser.raiseParserException("no reduction");
@@ -43,11 +50,20 @@ public class StatementsRuleHandler extends Reduction
     public void execute() throws ParserException
     {
         statement.execute();
-        setValue( statement.getValue() );
+        code.add( statement.getValue().asObject() );
         if ( statements != null )
         {
             statements.execute();
-            setValue( statements.getValue() );
+            Object o = statements.getValue().asObject();
+            if ( o instanceof Collection )
+            {
+                code.addAll( (Collection) o );
+            }
+            else
+            {
+                code.add( o );
+            }
         }
+        setValue( new Variable( code ) );
     }
 }

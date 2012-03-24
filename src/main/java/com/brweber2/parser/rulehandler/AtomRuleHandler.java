@@ -26,7 +26,7 @@ public class AtomRuleHandler extends Reduction
                 }
                 setValue( new Variable( new AnAtom( atomString ) ) );
             } else {
-                parser.raiseParserException("wrong number of args");
+                parser.raiseParserException("wrong number of args " + reduction.size());
             }
         } else {
             parser.raiseParserException("no reduction");

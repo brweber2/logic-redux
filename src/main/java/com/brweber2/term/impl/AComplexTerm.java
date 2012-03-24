@@ -89,7 +89,10 @@ public class AComplexTerm implements ComplexTerm {
             str.append(terms.get( i ));
             str.append(",");
         }
-        str.append( terms.get( terms.size() - 1 ) );
+        if ( !terms.isEmpty() )
+        {
+            str.append( terms.get( terms.size() - 1 ) );
+        }
         return str.toString();
     }
 }
