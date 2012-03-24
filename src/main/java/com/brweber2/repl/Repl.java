@@ -7,7 +7,6 @@ import com.brweber2.parser.CompileGrammar;
 import com.brweber2.rule.Goal;
 import com.brweber2.term.Atom;
 import com.brweber2.term.ComplexTerm;
-import com.creativewidgetworks.goldparser.parser.GOLDParser;
 import jline.ConsoleReader;
 
 import java.io.File;
@@ -57,15 +56,9 @@ public class Repl {
         }
     }
 
-    private static Object parseString( String read )
+    private static List parseString( String read )
     {
-        GOLDParser parser = compiler.parser();
-        if ( !parser.parseSourceStatements( new StringReader( read ) ) )
-        {
-            throw new RuntimeException( "Unable to parse: [" + read + "]." );
-        }
-        parser.getCurrentReduction().execute();
-        return parser.getCurrentReduction().getValue().asObject();
+        return CompileGrammar.parse( new StringReader( read ) );
     }
 
     private static boolean load( Object question )
@@ -115,7 +108,16 @@ public class Repl {
     private static void eval( String read )
     {
         // parse
-        Object s = parseString( read );
+        List s = parseString( read );
+        for ( Object o : s )
+        {
+            evalOne( o );
+        }
+    }
+    
+    private static void evalOne( Object s )
+    {
+        // todo add toggle trace...
         if ( switchMode( s ) )
         {
             switch ( mode )

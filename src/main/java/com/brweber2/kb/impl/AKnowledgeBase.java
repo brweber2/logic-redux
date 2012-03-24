@@ -29,7 +29,9 @@ import java.util.logging.Logger;
  *         Copyright: 2012
  */
 public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
-    
+
+    public static boolean TRACE = false;
+
     Map<Functor,Collection<Knowledge>> clauses = new HashMap<Functor,Collection<Knowledge>>();
     Unifier unifier = new Unify();
     Logger log = Logger.getLogger( AKnowledgeBase.class.getName() );
@@ -90,6 +92,18 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
             satisfyGoalList( goalList, parentBinding );
         }
     }
+    
+    private void trace( String s )
+    {
+        if ( TRACE )
+        {
+            log.info( s );
+        }
+        else
+        {
+            log.fine( s );
+        }
+    }
 
     private void satisfyGoalList( GoalList goalList, Binding parentBinding )
     {
@@ -97,14 +111,14 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         while ( goalList.haveMore() )
         {
             Goal goal = goalList.getNext();
-            log.info( "Goal: " + goal + " with binding: " + goalsBinding );
+            trace( "Goal: " + goal + " with binding: " + goalsBinding );
             Clauses clauses = goalList.getNextClause(goal);
 
             while ( clauses.hasMore() )
             {
                 Knowledge clause = clauses.getNext();
                 Binding clauseBinding = new ABinding( goalsBinding );
-                log.info( "Clause: " + clause + " with binding: " + clauseBinding );
+                trace( "Clause: " + clause + " with binding: " + clauseBinding );
                 UnifyResultAndGoalList unifyResultAndGoalList = satisfy( goal, clause, clauseBinding );
                 UnifyResult unifyResult = unifyResultAndGoalList.getUnifyResult();
                 Goals nextGoals = unifyResultAndGoalList.getGoals();
@@ -157,7 +171,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         {
             Fact fact = (Fact) clause;
             UnifyResult result = unifier.unify( fact.getTerm(), (Term) goal, binding );
-            log.info( "FACT RESULT: " + result + " for " + fact + " asked " + goal + " given " + binding );
+            trace( "FACT RESULT: " + result + " for " + fact + " asked " + goal + " given " + binding );
             return new UnifyResultAndGoalList( result, new Goals( this ) );
         }
         else // if ( clause instanceof Rule )
@@ -166,7 +180,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
             Fact head = rule.getHead();
             log.finer( "time to satisfy rule " + goal + " with " + head + " given " + binding );
             UnifyResult headResult = ask( goal, head, binding );
-            log.info( "HEAD RESULT: " + headResult + " for " + head + " asked " + goal + " given " + binding );
+            trace( "HEAD RESULT: " + headResult + " for " + head + " asked " + goal + " given " + binding );
             if ( headResult.succeeded() )
             {
                 log.fine( "head succeeded, time to check the body" );
