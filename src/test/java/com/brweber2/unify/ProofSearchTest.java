@@ -19,6 +19,12 @@ import org.testng.annotations.Test;
 
 public class ProofSearchTest
 {
+    static
+    {
+        AKnowledgeBase.PROMPT = false;
+        AKnowledgeBase.TRACE = true;
+    }
+
     @Test
     public void testProofSearch()
     {

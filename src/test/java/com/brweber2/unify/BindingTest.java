@@ -63,8 +63,8 @@ public class BindingTest
 
         Unifier unifier = new Unify();
         UnifyResult result = unifier.unifyRuleHead(
-                new AComplexTerm( "foo", new AVariable( "X"), new AnAtom( "foo" ), new AVariable( "Y" ), new AVariable( "Z" ), new AnAtom( "quux" )),
                 new AComplexTerm( "foo", new AVariable( "Y" ), new AVariable( "X" ), new AnAtom( "bar" ), new AnAtom( "baz" ), new AVariable( "M" ) ),
+                new AComplexTerm( "foo", new AVariable( "X"), new AnAtom( "foo" ), new AVariable( "Y" ), new AVariable( "Z" ), new AnAtom( "quux" )),
                 binding );
 
         Assert.assertTrue( result.succeeded() );
