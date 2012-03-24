@@ -170,7 +170,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                     log.fine( "did not unify " + goal + " and clause " + clause + " with " + clauseBinding );
                 }
             }
-            break;
+            break; // only carry on for ones that had clauses that unified...
         }
     }
     
@@ -246,7 +246,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
     {
         try
         {
-            if ( PROMPT )
+            if ( TRACE && PROMPT )
             {
                 System.err.println("... PAUSING ...");
                 binding.dumpVariables();
