@@ -170,6 +170,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                     log.fine( "did not unify " + goal + " and clause " + clause + " with " + clauseBinding );
                 }
             }
+            break;
         }
     }
     
