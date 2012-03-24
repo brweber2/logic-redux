@@ -29,7 +29,7 @@ public class Unify implements Unifier {
     {
         // replace any variables in b with the value from binding
 //        System.err.println("rule head: " + a);
-        Term modifiedA = replaceVariables(a,binding);
+        Term modifiedA = replaceVariables(a,binding);               // todo keep track of variable mappings....
 //        System.err.println( "modified rule head: " + modifiedA );
         UnifyResult result = unify( modifiedA, b, new ABinding() );
 //        System.err.println( "*** UNIFY HEAD RESULT: " + result + " \n\t " + a + " \n\t" + b );

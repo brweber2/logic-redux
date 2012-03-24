@@ -12,6 +12,8 @@ A Prolog like language that runs on the JVM.
 ## Work that hasn't started yet
 * There is no support for lists.
 * There is no support for 'is'.
+* Introspection of a knowledge space.
+* Named knowledge spaces.
 
 ## Work that will likely not be supported
 * There is not short circuiting of rules that will never terminate.
@@ -62,6 +64,10 @@ A Prolog like language that runs on the JVM.
 ### exit, quit or halt
 
 * Exits the REPL
+
+### Load a file
+
+* load('path to file').
 
 ### Assert knowledge
 

@@ -35,7 +35,7 @@ public class QueryAndPath
         return new ArrayDeque<Knowledge>( path );
     }
 
-    public QueryAndPath push( Knowledge clause )
+    public QueryAndPath push( Knowledge clause ) // todo push the binding as well...
     {
         Deque<Knowledge> q = getPath();
         q.add( clause );
