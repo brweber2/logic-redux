@@ -28,8 +28,12 @@ public class Unify implements Unifier {
     public com.brweber2.unify.UnifyResult unifyRuleHead( Term a, Term b, Binding binding )
     {
         // replace any variables in b with the value from binding
-        Term modifiedB = replaceVariables(b,binding);
-        return unify( modifiedB, a, new ABinding() );
+//        System.err.println("rule head: " + a);
+        Term modifiedA = replaceVariables(a,binding);
+//        System.err.println( "modified rule head: " + modifiedA );
+        UnifyResult result = unify( modifiedA, b, new ABinding() );
+//        System.err.println( "*** UNIFY HEAD RESULT: " + result + " \n\t " + a + " \n\t" + b );
+        return result;
     }
 
     private Term replaceVariables( Term b, Binding binding )
