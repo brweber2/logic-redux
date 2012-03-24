@@ -60,7 +60,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         log.fine( "asking " + query );
         try
         {
-        satisfy( new Goals( this, query ) );
+            satisfy( new Goals( this, query ), new QueryAndPath(query) );
         }
         catch ( ShortCircuitException e )
         {
@@ -96,16 +96,16 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         }
     }
 
-    public void satisfy( Goals goals )
+    public void satisfy( Goals goals, QueryAndPath queryAndPath )
     {
-        satisfyGoals( goals, new ABinding() );
+        satisfyGoals( goals, new ABinding(), queryAndPath );
     }
 
-    public void satisfyGoals( Goals goals, Binding parentBinding )
+    public void satisfyGoals( Goals goals, Binding parentBinding, QueryAndPath queryAndPath )
     {
         for ( GoalList goalList : goals.getListOfGoalLists() )
         {
-            satisfyGoalList( goalList, parentBinding );
+            satisfyGoalList( goalList, parentBinding, queryAndPath );
         }
     }
     
@@ -122,7 +122,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         }
     }
 
-    private void satisfyGoalList( GoalList goalList, Binding parentBinding )
+    private void satisfyGoalList( GoalList goalList, Binding parentBinding, QueryAndPath queryAndPath )
     {
         Binding goalsBinding = new ABinding( parentBinding );
         while ( goalList.haveMore() )
@@ -134,6 +134,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
             while ( clauses.hasMore() )
             {
                 Knowledge clause = clauses.getNext();
+                queryAndPath = queryAndPath.push(clause);
                 Binding clauseBinding = new ABinding( goalsBinding );
                 trace( "Clause: " + clause + " \n\t with binding: " + clauseBinding + " \n\t from " + goalsBinding);
                 UnifyResultAndGoalList unifyResultAndGoalList = satisfy( goal, clause, clauseBinding );
@@ -146,15 +147,15 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                         if ( !goalList.haveMore() )
                         {
                             // we have a match!!!!
-                            print( unifyResult.bindings() );
+                            print( unifyResult.bindings(), queryAndPath );
                         }
                         else
                         {
                             pause( unifyResult.bindings() );
                             goalList.markForBacktracking();
                             clauses.markForBacktracking();
-                            satisfyGoalList( goalList, unifyResult.bindings() );
-                            System.err.println( "backtracking" );
+                            satisfyGoalList( goalList, unifyResult.bindings(), queryAndPath );
+                            log.fine( "backtracking" );
                             clauses.backtrack();
                             goalList.backtrack();
                         }
@@ -162,7 +163,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
                     else
                     {
                         log.fine( "**** \n\n\ttime to satisfy: " + nextGoals + " \n\t given " + unifyResult.bindings() );
-                        satisfyGoals( nextGoals, unifyResult.bindings() );
+                        satisfyGoals( nextGoals, unifyResult.bindings(), queryAndPath );
                     }
                 }
                 else
@@ -233,12 +234,6 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         log.finer( "bbw trying to unify: goal " + goal + " head " + head + " ruleBinding: " + ruleBinding );
         UnifyResult result = unifier.unifyRuleHead( (Term) goal, (Term) head, ruleBinding );
         log.fine( "goal " + goal + " \n\t head " + head + " \n\t after ruleBinding: " + ruleBinding + " \n\t with result " + result );
-//        if ( result.succeeded() )
-//        {
-//            Binding finalBinding = new ABinding( ruleBinding );
-//            log.finer( "goal " + goal + " head " + head + " final binding: " + finalBinding );
-//            return new com.brweber2.unify.impl.UnifyResult( result, finalBinding );
-//        }
         return result;
     }
 
@@ -263,12 +258,23 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         }
     }
 
-    public void print( Binding binding )
+    public void print( Binding binding, QueryAndPath queryAndPath )
     {
         try
         {
             System.out.println("yes");
-            binding.dumpVariables();
+            if ( hasVariables( queryAndPath.getQuery() ) )
+            {
+                // todo track variable name back up to the query...
+                binding.dumpVariables();
+            }
+            if ( TRACE )
+            {
+                for ( Knowledge knowledge : queryAndPath.getPath() )
+                {
+                    System.err.println( knowledge );
+                }
+            }
             if ( PROMPT )
             {
                 String line = consoleReader.readLine();
@@ -282,6 +288,26 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         {
             throw new RuntimeException( "Unable to read input from the user.", e );
         }
+    }
+
+    private boolean hasVariables( Goal query )
+    {
+        if ( query instanceof Variable )
+        {
+            return true;
+        }
+        else if ( query instanceof ComplexTerm )
+        {
+            ComplexTerm ct = (ComplexTerm) query;
+            for ( Term term : ct.getTerms() )
+            {
+                if ( hasVariables( term ) )
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
