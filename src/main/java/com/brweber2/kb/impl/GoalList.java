@@ -3,11 +3,13 @@
  */
 package com.brweber2.kb.impl;
 
+import com.brweber2.kb.Knowledge;
 import com.brweber2.kb.KnowledgeBase;
 import com.brweber2.rule.Goal;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
@@ -46,9 +48,13 @@ public class GoalList
     public Goal getNext( )
     {
         Goal next = iterator.next();
-        if ( !clausesMap.containsKey( next ) )
+        Collection<Knowledge> clauses = kb.getClauses( next );
+        if ( clauses != null )
         {
-            clausesMap.put( next, new Clauses( kb.getClauses( next ) ) );
+            if ( !clausesMap.containsKey( next ) )
+            {
+                clausesMap.put( next, new Clauses( clauses ) );
+            }
         }
         return next;
     }

@@ -66,6 +66,7 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
         {
             // ok
         }
+        System.err.println( "no" );
     }
 
     public Collection<Knowledge> getClauses( Goal goal )
@@ -130,6 +131,11 @@ public class AKnowledgeBase implements KnowledgeBase, ProofSearch {
             Goal goal = goalList.getNext();
             trace( "Goal: " + goal + " \n\t with binding: " + goalsBinding );
             Clauses clauses = goalList.getNextClause(goal);
+
+            if ( clauses == null )
+            {
+                return;
+            }
 
             while ( clauses.hasMore() )
             {
