@@ -8,18 +8,20 @@ A Prolog like language that runs on the JVM.
 
 ## In progress work (i.e. incomplete)
 * Loading terms and rules from files is not functioning currently.  They must be loaded via the repl.
+* Support for lists.
+* The decompose operator (for lists).
+* Support for 'is'.
 
 ## Work that hasn't started yet
-* There is no support for lists.
-* There is no support for 'is'.
+* Support for operators in general (== =:= etc.), but not numeric operators.
 * Introspection of a knowledge space.
 * Named knowledge spaces.
 
 ## Work that will likely not be supported
 * There is not short circuiting of rules that will never terminate.
-* There is no support for operators.
+* There is no support for some operators.
 * There is no (and there is no plan to) support for input/output (Just use Java...).
-* There is no (and there is no plan to) support for cut.
+* There is no (and there is no plan to) support for cut or negation.
 
 ## How do I build it?
 
